@@ -375,7 +375,6 @@ int rentalCost(int baseRent, int houseIncrease, int HotelIncrease) {
                 
         }
     }
-    
 }
 
 void redFordAvenue() {
@@ -410,9 +409,9 @@ void redFordAvenue() {
             cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
             bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
         }
-        
-        
     }
+
+    switchPlayer();
 }
 
 #endif
