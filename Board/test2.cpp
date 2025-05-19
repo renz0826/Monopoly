@@ -10,6 +10,45 @@ struct Tile {
     vector<int> occupants;  // Track which players are here (1 or 2)
 };
 
+string centerTexts(const string &text, int width) {
+    int padLeft = (width - static_cast<int>(text.size())) / 2;
+    int padRight = width - static_cast<int>(text.size()) - padLeft;
+    return string(padLeft, ' ') + text + string(padRight, ' ');
+}
+
+string getInputInBoxCenteredPrompt(const string &prompt, int boxWidth) {
+    // Draw the box:
+    // Top border:
+    cout << "+" << string(boxWidth, '-') << "+" << "\n";
+    // Input row (initially blank):
+    cout << "|" << string(boxWidth, ' ') << "|" << "\n";
+    // Bottom border:
+    cout << "+" << string(boxWidth, '-') << "+" << "\n";
+    
+    // After printing the box, the cursor is on the line below the box.
+    // We need to move up 2 lines to land on the input row.
+    cout << "\033[2A";  // Move up two lines.
+    
+    // Calculate the horizontal starting position in the inner area such that the prompt appears centered.
+    // The inner text area is 'boxWidth' characters wide. Since the left border occupies column 1,
+    // we add 1 to the calculated left-padding.
+    int promptPos = (boxWidth - prompt.size()) / 2 + 1;
+    cout << "\033[" << promptPos << "G";  // Move the cursor to column 'promptPos'.
+    cout.flush();
+    
+    // Print the prompt (with a trailing space) and allow the user to type inline.
+    cout << prompt << " ";
+    string userInput;
+    getline(cin, userInput);
+    
+    return prompt + " " + userInput;
+}
+
+
+
+
+
+
 string centerText(const string &text, int width) {
     // Strip ANSI codes for length calculation
     size_t visibleLength = 0;
@@ -280,13 +319,81 @@ void printInteriorBlankLines(int numBoxes, int cellWidth, int numLines, int gap,
                  << getGapString(gap)
                  << "+" << string(cellWidth, '-') << "+\n";
         }
+
+        int posSpecifier(int pos) {
+            if (pos == 0) {
+                return 19;
+            }
+            else if (pos == 1) {
+                return 18;
+            }
+            else if (pos == 2) {
+                return 17;
+            }
+            else if (pos == 3) {
+                return 16;
+            }
+            else if (pos == 4) {
+                return 15;
+            }
+            else if (pos == 5) {
+                return 14;
+            }
+            else if (pos == 6){
+                return 12;
+            }
+            else if (pos == 7){
+                return 10;
+            }
+            else if (pos == 8){
+                return 8;
+            }
+            else if (pos == 9){
+                return 6;
+            }
+            else if (pos == 10){
+                return 0;
+            }
+            else if (pos == 11){
+                return 1;
+            }
+            else if (pos == 12){
+                return 2;
+            }
+            else if (pos == 13){
+                return 3;
+            }
+            else if (pos == 14){
+                return 4;
+            }
+            else if (pos == 15){
+                return 5;
+            }
+            else if (pos == 16){
+                return 7;
+            }
+            else if (pos == 17){
+                return 9;
+            }
+            else if (pos == 18){
+                return 11;
+            }
+            else if (pos == 19){
+                return 13;
+            }
+        }
         
 // ... [Keep printHeaderLine, printSpecialRow, etc. unchanged] ...
 
 int main() {
     // ---- Player Positions ----
-    vector<int> playerPositions = {6, 6};  // P1 at index 3, P2 at index 5
 
+    // Give each player a unique starting position:
+    int pos1 = 0;  
+    int pos2 = 0;  
+    
+    vector<int> playerPositions = { posSpecifier(pos1), posSpecifier(pos2) };
+    
        // ---- Standard (Main) Row Parameters ----
        const int numBoxes = 6;      // number of boxes in the standard row
        const int cellWidth = 13;    // width of each box's interior
@@ -351,6 +458,10 @@ int main() {
        int specialInterior = 4;
     // ... [Keep color definitions and tile initialization unchanged] ...
 
+    string dialog = "Welcome!";
+    string subDialog = "Choose wisely";
+    string choiceDialog = "yes";
+
     // Modified print calls with player positions
     printHorizontalBorder(numBoxes, cellWidth, gap);
     printHeaderLine(tilesStandard, numBoxes, cellWidth, gap);
@@ -361,9 +472,9 @@ int main() {
         specialTiles2,   // { "Income Tax", "Internet" }
         cellWidth,              // cellWidth
         specialGap,              // gap
-        "Pay Tax?",      // dialog
-        "Yes: $200",     // subDialog
-        "No: Free Pass", // choiceDialog
+        dialog,      // dialog
+        subDialog,     // subDialog
+        choiceDialog, // choiceDialog
         specialInterior,               // interiorLines
         playerPositions, // e.g. {10,11}
         8,              // boardIndex0
@@ -375,9 +486,10 @@ int main() {
     printHeaderLine(tilesStandard2, numBoxes, cellWidth, gap);
     printInteriorBlankLines(numBoxes, cellWidth, cellHeight-1, gap, playerPositions, 14, false);
     printHorizontalBorder(numBoxes, cellWidth, gap);
-
-
-    // ... [Rest of your existing printing code] ...
+    
+    int boxWidth = 83;  // Fixed width for the dialog box.
+    string prompt = "Question:";
+    string response = getInputInBoxCenteredPrompt(prompt, boxWidth);
 
     return 0;
 }
