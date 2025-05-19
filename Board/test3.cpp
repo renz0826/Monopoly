@@ -89,6 +89,15 @@ void printSpecialRow(Tile tiles[], int cellWidth, int gap) {
 
 void printSpecialRow2(Tile tiles[], int cellWidth, int gap) {
 
+    cout << "+"
+    << string(cellWidth, '-')
+    << "+"
+    << getGapString(gap)
+    << "+"
+    << string(cellWidth, '-')
+    << "+"
+    << "\n";
+
     // Header line for the two special boxes
     cout << "|";
     cout << tiles[0].bgColor << centerText(tiles[0].name, cellWidth) << "\x1b[0m" << "|";
@@ -214,8 +223,6 @@ int main() {
         { "Redford", 	R },
         { "GO!", 	RR }
     };
-
-    cout << tilesStandard2[5].name;
     
     int specialGap = 55;
     // Print the standard row:
@@ -238,7 +245,7 @@ int main() {
 
     
     printSpecialRowWithDialog(specialTiles2, cellWidth, specialGap, dialog, subDialog, choiceDialog, specialInterior);
-    printSpecialRow2(specialTiles3, cellWidth, specialGap);
+    printSpecialRow(specialTiles3, cellWidth, specialGap);
     printSpecialRow2(specialTiles4, cellWidth, specialGap);
     printHorizontalBorder(numBoxes, cellWidth, gap);
     printHeaderLine(tilesStandard2, numBoxes, cellWidth, gap);
