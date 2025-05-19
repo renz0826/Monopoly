@@ -110,7 +110,7 @@ int main() {
     const int numBoxes = 6;      // number of boxes in the standard row
     const int cellWidth = 13;    // width of each box's interior
     const int cellHeight = 5;    // total number of interior blank lines to print (editable)
-    int gap = 3;                 // gap between boxes in the standard row
+    int gap = 0;                 // gap between boxes in the standard row
 
     // ANSI color codes for box backgrounds:
     const string R = "\033[38;2;0;0;0;48;2;255;153;153m";  // pale red
@@ -136,8 +136,6 @@ int main() {
     // Print (cellHeight - 1) interior blank lines; adjust cellHeight as needed.
     printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap);
     printHorizontalBorder(numBoxes, cellWidth, gap);
-    
-    cout << "\n"; // Separation between rows
     
     // ---- Special Row Parameters ----
     // Special row: 2 boxes with a wide gap that includes two dialog lines.
