@@ -1,1 +1,0 @@
-int specialInterior = 4;

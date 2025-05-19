@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 // A simple structure to hold tile information (name and background color)
@@ -252,6 +253,7 @@ int main() {
     // Print (cellHeight - 1) interior blank lines (adjust cellHeight as needed)
     printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap);
     printHorizontalBorder(numBoxes, cellWidth, gap);
+
     
     return 0;
 }
