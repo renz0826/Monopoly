@@ -65,11 +65,55 @@ void printInteriorBlankLines(int numBoxes, int cellWidth, int numLines, int gap)
     }
 }
 
+void printSpecialRow(Tile tiles[], int cellWidth, int gap) {
+    
+    // Header line for the two special boxes
+    cout << "|";
+    cout << tiles[0].bgColor << centerText(tiles[0].name, cellWidth) << "\x1b[0m" << "|";
+    cout << getGapString(gap);
+    cout << "|";
+    cout << tiles[1].bgColor << centerText(tiles[1].name, cellWidth) << "\x1b[0m" << "|";
+    cout << "\n";
+    
+    // Interior blank lines (3 lines)
+    for (int j = 0; j < 4; j++) {
+        cout << "|";
+        cout << string(cellWidth, ' ') << "|";
+        cout << getGapString(gap);
+        cout << "|";
+        cout << string(cellWidth, ' ') << "|";
+        cout << "\n";
+    }
+
+}
+
+void printSpecialRow2(Tile tiles[], int cellWidth, int gap) {
+
+    // Header line for the two special boxes
+    cout << "|";
+    cout << tiles[0].bgColor << centerText(tiles[0].name, cellWidth) << "\x1b[0m" << "|";
+    cout << getGapString(gap);
+    cout << "|";
+    cout << tiles[1].bgColor << centerText(tiles[1].name, cellWidth) << "\x1b[0m" << "|";
+    cout << "\n";
+    
+    // Interior blank lines (3 lines)
+    for (int j = 0; j < 4; j++) {
+        cout << "|";
+        cout << string(cellWidth, ' ') << "|";
+        cout << getGapString(gap);
+        cout << "|";
+        cout << string(cellWidth, ' ') << "|";
+        cout << "\n";
+    }
+
+}
+
 // Prints a special row with 2 boxes separated by a fixed gap,
 // and an editable number of interior lines.
 void printSpecialRowWithDialog(Tile tiles[], int cellWidth, int gap, 
-                               const string &dialog, const string &subDialog, 
-                               int interiorLines) {
+                               const string &dialog, const string &subDialog,
+                               const string &choiceDialog, int interiorLines) {
     // Ensure at least 2 interior lines for dialog and sub-dialog.
     if (interiorLines < 2)
         interiorLines = 2;
@@ -96,6 +140,8 @@ void printSpecialRowWithDialog(Tile tiles[], int cellWidth, int gap,
             cout << centerText(dialog, gap);
         else if (j == 1)
             cout << centerText(subDialog, gap);
+        else if (j == 2)
+            cout << centerText(choiceDialog, gap);
         else
             cout << getGapString(gap);
         cout << "|" << string(cellWidth, ' ') << "|\n";
@@ -121,41 +167,84 @@ int main() {
     const string G = "\033[38;2;0;0;0;48;2;153;255;153m";  // pale green
     const string B = "\033[38;2;0;0;0;48;2;153;204;255m";  // pale blue
     const string V = "\033[38;2;0;0;0;48;2;255;153;255m";  // pale violet
+    const string BR = "\033[48;5;223m\033[30m";            // pale brown
+    const string PG = "\033[48;5;250m\033[30m";            // pale gray
+    const string W = "\033[48;5;15m\033[30m";              //pure white
+    const string RR = "\033[41m\033[97m";            // red
 
     // Standard row tile array (6 boxes):
     Tile tilesStandard[numBoxes] = {
-        { "Go",       R },
-        { "Redford",  O },
-        { "Chest",    Y },
-        { "Railroad", G },
-        { "Roselawn", B },
-        { "Jail",     V }
+        { "Free",       RR },
+        { "Harbor",  B },
+        { "Chance",    V },
+        { "Water",  W },
+        { "Bayview", B },
+        { "Go to Jail",     O }
+    };
+
+    tilesStandard[6];
+    
+    Tile specialTiles[] = {
+        { "Electric", 		W },
+        { "Chance", 	V }
     };
     
+    Tile specialTiles2[] = {
+        { "Garden City", 		G },
+        { "Sunset", 	Y }
+    };
+    
+    Tile specialTiles3[] = {
+        { "Income Tax", 	PG },
+        { "Internet", 	W }
+    };
+
+    Tile specialTiles4[] = {
+        { "Greenwich", 	G },
+        { "Chest", 	BR }
+    };
+
+
+
+    Tile tilesStandard2[] = {
+        { "Jail", 	O },
+        { "Roselawn", 	R },
+        { "Railroad",  PG },
+        { "Chest", 	V },
+        { "Redford", 	R },
+        { "GO!", 	RR }
+    };
+
+    cout << tilesStandard2[5].name;
+    
+    int specialGap = 55;
     // Print the standard row:
     printHorizontalBorder(numBoxes, cellWidth, gap);
     printHeaderLine(tilesStandard, numBoxes, cellWidth, gap);
     // Print (cellHeight - 1) interior blank lines (adjust cellHeight as needed)
     printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap);
     printHorizontalBorder(numBoxes, cellWidth, gap);
-    
-    cout << "\n"; // Separation between rows
+    printSpecialRow2(specialTiles, cellWidth, specialGap);
     
     // ---- Special Row Parameters ----
     // Special row: 2 boxes with a wide gap.
     // Inside that gap, we want the main dialog on the first interior line,
     // the sub-dialog on the second, and the overall number of interior lines editable.
-    Tile specialTiles[2] = {
-        { "Chance", R },
-        { "Income Tax", O }
-    };
     
-    int specialGap = 55;       // fixed gap width for the special row
     int specialInterior = 4;   // editable number of interior lines for the special row (minimum of 2)
-    string dialog = "Welcome to Monopoly";
-    string subDialog = "Buy your property!";
+    string dialog = "You're currently on Water Works (Utility)";
+    string subDialog = "Would you like to purchase it for $100? [y/n]";
+    string choiceDialog = "Your choice: ";
+
     
-    printSpecialRowWithDialog(specialTiles, cellWidth, specialGap, dialog, subDialog, specialInterior);
+    printSpecialRowWithDialog(specialTiles2, cellWidth, specialGap, dialog, subDialog, choiceDialog, specialInterior);
+    printSpecialRow2(specialTiles3, cellWidth, specialGap);
+    printSpecialRow2(specialTiles4, cellWidth, specialGap);
+    printHorizontalBorder(numBoxes, cellWidth, gap);
+    printHeaderLine(tilesStandard2, numBoxes, cellWidth, gap);
+    // Print (cellHeight - 1) interior blank lines (adjust cellHeight as needed)
+    printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap);
+    printHorizontalBorder(numBoxes, cellWidth, gap);
     
     return 0;
 }

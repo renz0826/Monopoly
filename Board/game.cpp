@@ -290,7 +290,5 @@ int main() {
     printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap);
     printHorizontalBorder(numBoxes, cellWidth, gap);
     
-
-
     
 }
