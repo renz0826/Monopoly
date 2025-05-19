@@ -14,5 +14,8 @@ void inputFailure(){
     }
 }
 
+void fileNotFound(){
+    cerr << "File cannot be found." << endl;
+}
 #endif
 
