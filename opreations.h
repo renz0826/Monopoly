@@ -33,7 +33,7 @@ void switchPlayer() {
 }
 
 bool isOwned() {      
-   file.open(propertiesDetailFile, ios::out);
+   file.open(propertiesDetailFile, ios::in);
    if (file.is_open()) {
         string line;
         while (getline(file, line)) {
@@ -56,11 +56,19 @@ bool isOwned() {
     } else {
         fileNotFound();
     }
-   
 }
 
 int total (int hundred, int fifty, int twenty, int ten, int one){
     return (hundred * 100) + (fifty * 50) + (twenty * 20) + (ten * 10) + (one * 1);
+}
+
+void printPlayerBalance(int hundred, int fifty, int twenty, int ten, int one) {
+    cout << " $100: " << hundred
+         << "  $50: " << fifty
+         << "  $20: " << twenty
+         << "  $10: " << ten
+         << "   $1: " << one
+         << "  Total: " << total(hundred, fifty, twenty, ten, one) << endl;
 }
 
 class Banker{
@@ -110,13 +118,42 @@ class Banker{
         cout << " $10: " << num10;
         cout << "  $1: " << num1; 
     }
-
+    
     private:
     int hundred, fifty, twenty, ten, one; 
     int chundred, cfifty, ctwenty, cten, cone; 
     int phundred, pfifty, ptwenty, pten, pone; 
-
+    
     public:
+
+    bool isPlayerLost(string currentPlayer, int due){
+        money.open(moneyFile, ios::out);
+        if (money.is_open()) {
+            string line;
+            getline(money, line);
+            stringstream ss(line);
+            string s100, s50, s20, s10, s1;
+            
+            getline(ss, s100, ',');
+            getline(ss, s50, ',');
+            getline(ss, s20, ',');
+            getline(ss, s10, ',');
+            getline(ss, s1, ',');
+
+            int ihundred = stoi(s100);
+            int ififty = stoi(s50);
+            int itwenty = stoi(s20);
+            int iten = stoi(s10);
+            int ione = stoi(s1);
+
+            return (total(ihundred, ififty, itwenty, iten, ione) < due);
+
+            money.close();
+        } else {
+            fileNotFound();
+        }
+    }
+
     void enterAmount(){
          do {
                 cout << "$100: ";
@@ -174,7 +211,16 @@ class Banker{
             } while (cone < one);
     }
     
-    void pay (int price) {      
+    void pay (int price) {
+        
+        if (isPlayerLost(currentplayer, price)) {
+            cout << currentplayer << " is bankrupt! Game over." << endl;
+            switchPlayer();
+            cout  << currentplayer << " won the Game! Way to Go, Tycoon!" << endl;
+
+            exit(0);
+        }
+              
         money.open(moneyFile, ios::in | ios::out);
         if (money.is_open()){
             string line;
@@ -199,7 +245,6 @@ class Banker{
             do {
                 cout << "Amount Due: $" << price << endl;
                 cout << "Practice your math skill! Enter the number of bill you want to give in order to pay for your dues." << endl;
-                
                 enterAmount();
 
                 if (totalGiven < price) {
@@ -250,12 +295,7 @@ class Banker{
                         tempo << phundred << ',' << pfifty << ',' << ptwenty << ',' << pten << ',' << pone << '\n';
 
                         cout << currentplayer << "'s updated funds: " << endl;
-                        cout << " $100: " << phundred;
-                        cout << "  $50: " << pfifty;
-                        cout << "  $20: " << ptwenty;
-                        cout << "  $10: " << pten;
-                        cout << "   $1: " << pone; 
-                        cout << "Total:" << total(phundred, pfifty, ptwenty, pten, pone);
+                        printPlayerBalance(phundred, pfifty, ptwenty, pten, pone);
 
                         money2.close();
                         tempo.close();
@@ -269,12 +309,7 @@ class Banker{
             }
             
             cout << "Your new balance is: " << endl;
-            cout << " $100: " << chundred;
-            cout << "  $50: " << cfifty;
-            cout << "  $20: " << ctwenty;
-            cout << "  $10: " << cten;
-            cout << "   $1: " << cone; 
-            cout << "Total:" << total(chundred, cfifty, ctwenty, cten, cone);
+            printPlayerBalance(chundred, cfifty, ctwenty, cten, cone);
     
             money.clear();
             money.seekp(0, ios::beg);
@@ -287,10 +322,42 @@ class Banker{
         }
     }
 
+    void receiveMoney(int amount) {
+        money.open(moneyFile, ios::out);
+            if (money.is_open()) {
+                string line, h, f, t, te, o;
+                getline(money, line);
+                stringstream ss(line);
+
+                getline(ss, h, ',');
+                getline(ss, f, ',');
+                getline(ss, t, ',');
+                getline(ss, te, ',');
+                getline(ss, o, '\n');
+
+                int H = stoi(h);
+                int F = stoi(f);
+                int T = stoi(t);
+                int Te = stoi(te);
+                int O = stoi(o);    
+
+                F += 1;
+
+                money << h << ',' << F << ',' << t << ',' << te << ',' << o << '\n';
+
+                money.close();
+
+                cout << "You recieve $" << amount << " from the bank. Your new balance is: " << endl;
+                printPlayerBalance(H, F, T, Te, O);
+            } else {
+                fileNotFound();
+            }
+    }
+
     void giveMoney() {
         money.open(currentplayer, ios::out);
         if (money.is_open()) {
-            money << '4' << ',' << '1' << '1' << '2' << '5' << '\n';
+            money << 4 << ',' << 1 << ','  << 1 << ',' << 2  << ',' <<  5 << '\n';
             money.close();
         } else {
             fileNotFound();
@@ -300,119 +367,94 @@ class Banker{
 
         money.open(currentplayer, ios::out);
         if (money.is_open()) {
-            money << '4' << ',' << '1' << '1' << '2' << '5' << '\n';
+            money << 4 << ',' << 1 << ','  << 1 << ',' << 2  << ',' <<  5 << '\n';
             money.close();
         } else {
             fileNotFound();
         }
 
         switchPlayer();
+
+        cout << "Each player now has a balance of: " << endl;
+        printPlayerBalance(4,1,1,2,5);
     }
 
-    bool isPlayerLost(string currentPlayer, int due){
-        money.open(moneyFile, ios::out);
-        if (money.is_open()) {
-            string line;
-            getline(money, line);
-            stringstream ss(line);
-            string s100, s50, s20, s10, s1;
+    void buyAsset(string propertyName) {
+        char yn;
+        cout << "Would you like to purchase some assets to increase the value of your land? [y/n]: ";
+        cin >> yn;
+        inputFailure();
+        
+        if (tolower(yn) == 'y') {
+            file.open(propertiesDetailFile, ios::in);
+            tempo.open(tempfile, ios::out);
+    
+            if (file.is_open() && tempo.is_open()) {
+                string line;
+                string name, houses, hotels, owner;
+                while (getline(file, line)) {
+                    stringstream ss(line);
+                    
+                    getline(ss, name, ',');
+                    getline(ss, houses, ',');
+                    getline(ss, hotels, ',');
+                    getline(ss, owner, '\n');
             
-            getline(ss, s100, ',');
-            getline(ss, s50, ',');
-            getline(ss, s20, ',');
-            getline(ss, s10, ',');
-            getline(ss, s1, ',');
-
-            int ihundred = stoi(s100);
-            int ififty = stoi(s50);
-            int itwenty = stoi(s20);
-            int iten = stoi(s10);
-            int ione = stoi(s1);
-
-            return (total(ihundred, ififty, itwenty, iten, ione) < due);
-
-            money.close();
-        } else {
-            fileNotFound();
+                    if (name == propertyName && owner == currentplayer) {
+                        cout << "Number of Houses: " << houses << endl;
+                        cout << "Number of Hotels: " << hotels << endl;
+                        cout << "Note that you can only upgrade to HOTELS and you must have 4 houses to do so." << endl;
+            
+                        if (houses == "4") {
+                            char yn;
+                            cout << "Would you like to upgrade your house properties into a hotel? [y/n]: ";
+                            cin >> yn;
+                            inputFailure();
+            
+                            if (tolower(yn) == 'y') {
+                                houses = "0";
+                                int iHotel = stoi(hotels);
+                                iHotel += 1;
+            
+                                hotels = to_string(iHotel);
+                            } else if (tolower(yn) == 'n') {
+                                cout << "Make the right investments, " << currentplayer << endl;
+                            }
+                        } else {
+                            int housesToPurchase;
+                            
+                            do {
+                                cout << "How many houses would you want to purchase: ";
+                                cin >> housesToPurchase;
+                                inputFailure();
+                                
+                                if (housesToPurchase > 4 || housesToPurchase <= 0) {
+                                    cerr << "Invalid Input. Note that you're limited to have 4 houses for this property." << endl;
+                                }
+                                
+                            } while (housesToPurchase > 4 || housesToPurchase <= 0);
+                            
+                            int totalDue = housePrice * housesToPurchase;
+                            cout << "For  " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue;
+                            pay(totalDue); 
+                        }
+                    }
+    
+                    tempo << name << ',' << houses << ',' << hotels << 'n' << owner << '\n';
+                    
+                    file.close();
+                    tempo.close();
+    
+                    remove(propertiesDetailFile.c_str());
+                    rename(tempfile.c_str(), propertiesDetailFile.c_str());
+                }
+            } else {
+                fileNotFound();
+            }
         }
     }
 };
 
-void buyasset(string propertyName) {
-    Banker bank;
-    char yn;
-    cout << "Would you like to purchase some assets to increase the value of your land? [y/n]: ";
-    cin >> yn;
-    inputFailure();
-    
-    if (tolower(yn) == 'y') {
-        file.open(propertiesDetailFile, ios::in);
-        tempo.open(tempfile, ios::out);
-
-        if (file.is_open() && tempo.is_open()) {
-            string line;
-            string name, houses, hotels, owner;
-            while (getline(file, line)) {
-                stringstream ss(line);
-                
-                getline(ss, name, ',');
-                getline(ss, houses, ',');
-                getline(ss, hotels, ',');
-                getline(ss, owner, '\n');
-        
-                if (name == propertyName && owner == currentplayer) {
-                    cout << "Number of Houses: " << houses << endl;
-                    cout << "Number of Hotels: " << hotels << endl;
-                    cout << "Note that you can only upgrade to HOTELS and you must have 4 houses to do so." << endl;
-        
-                    if (houses == "4") {
-                        char yn;
-                        cout << "Would you like to upgrade your house properties into a hotel? [y/n]: ";
-                        cin >> yn;
-                        inputFailure();
-        
-                        if (tolower(yn) == 'y') {
-                            houses = "0";
-                            int iHotel = stoi(hotels);
-                            iHotel += 1;
-        
-                            hotels = to_string(iHotel);
-                        } else if (tolower(yn) == 'n') {
-                            cout << "Make the right investments, " << currentplayer << endl;
-                        }
-                    } else {
-                        int housesToPurchase;
-                        
-                        do {
-                            cout << "How many houses would you want to purchase: ";
-                            cin >> housesToPurchase;
-                            inputFailure();
-                            
-                            if (housesToPurchase > 4 || housesToPurchase <= 0) {
-                                cerr << "Invalid Input. Note that you're limited to have 4 houses for this property." << endl;
-                            }
-                            
-                        } while (housesToPurchase > 4 || housesToPurchase <= 0);
-                        
-                        int totalDue = housePrice * housesToPurchase;
-                        cout << "For  " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue;
-                        bank.pay(totalDue); 
-                    }
-                }
-
-                tempo << name << ',' << houses << ',' << hotels << 'n' << owner << '\n';
-                
-                file.close();
-                tempo.close();
-
-                remove(propertiesDetailFile.c_str());
-                rename(tempfile.c_str(), propertiesDetailFile.c_str());
-            }
-        } else {
-            fileNotFound();
-        }
-    }
-}
 
 int rentalCost(int baseRent, int houseIncrease, int HotelIncrease) {
     file.open(propertiesDetailFile, ios::in) ;
@@ -434,7 +476,6 @@ int rentalCost(int baseRent, int houseIncrease, int HotelIncrease) {
 
                 return totalCost = baseRent + (iHouse*houseIncrease) + (iHotel*HotelIncrease);
             }
-                
         }
     } else {
         fileNotFound();
@@ -518,249 +559,85 @@ class lands{
     private: 
     int numOfHouse, numOfHotel;
     int propertyPrice, baseRent = propertyPrice * 0.1;
+    int housePrice, hotelPrice; 
+
+    void handleProperty(const string& propName, int propPrice, int housePrice, int hotelPrice, int baseRent, int houseIncrease, int hotelIncrease) {
+        propertyName = propName;
+        this->housePrice = housePrice;
+        this->hotelPrice = hotelPrice;
+                
+        cout << "You're currently on " << propertyName << endl;
+                
+        if (!isOwned()) {
+            char choice;
+            cout << "This property is for sale for $" << propPrice << endl;
+            cout << "Would you like to purchase it? [y/n]: ";
+            cin >> choice;
+            inputFailure();
+                    
+            if (tolower(choice) == 'y') {
+                status = "Buying";
+                bank.pay(propPrice);
+                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
+            } else if (tolower(choice) == 'n') {
+                cout << "You have missed the chance to own " << propertyName << endl;
+            }
+         } else {
+            if (owner == currentplayer) {
+                bank.buyAsset(propertyName);
+             } else {
+                int rent = rentalCost(baseRent, houseIncrease, hotelIncrease);
+                cout << propertyName << " is owned by the other player. Rental cost is " << rent << endl;
+                bank.pay(rent);
+            }
+         }
+            switchPlayer();
+    }
     
     public:
     Banker bank;
+    
     void redFordAvenue() {
-        int houseIncrease = 50, hotelIncrease = 300; 
-        propertyName = "Redford Avenue", propertyPrice = 120;
-        housePrice = 50, hotelPrice = 150;
-    
-        cout << "You're currently on Red Ford Avenue" << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Redford Avenue", 120, 50, 150, 12, 50, 300);
     }
     
-    void roseLawnStreet() { 
-        int houseIncrease = 50, hotelIncrease = 300; 
-        propertyName = "Roselawn Street", propertyPrice = 140;
-        housePrice = 50, hotelPrice = 150;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+    void roseLawnStreet() {
+        handleProperty("Roselawn Street", 140, 50, 150, 14, 50, 300);
     }
     
     void greenwichRoad() {
-        int houseIncrease = 75, hotelIncrease = 450;
-        propertyName = "Greenwich Road", propertyPrice = 160;
-        housePrice = 75, hotelPrice = 225;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Greenwich Road", 160, 75, 225, 16, 75, 450);
     }
     
     void gardenCityLane() {
-        int houseIncrease = 75, hotelIncrease = 450;
-        propertyName = "Garden City Lane", propertyPrice = 180;
-        housePrice = 75, hotelPrice = 225;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Garden City Lane", 180, 75, 225, 18, 75, 450);
     }
     
     void blueHarborDrive() {
-        int houseIncrease = 100, hotelIncrease = 600; 
-        propertyName = "Blue Harbor Drive", propertyPrice = 200;
-        housePrice = 100, hotelPrice = 300;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Blue Harbor Drive", 200, 100, 300, 20, 100, 600);
     }
     
     void bayviewBoulevard() {
-        int houseIncrease = 100, hotelIncrease = 600;
-        propertyName = "Bayview Boulevard", propertyPrice = 220;
-        housePrice = 100, hotelPrice = 300;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Bayview Boulevard", 220, 100, 300, 22, 100, 600);
     }
     
     void sunriseStrip() {
-        int houseIncrease = 125, hotelIncrease = 700;
-        propertyName = "Sunrise Strip", propertyPrice = 240;
-        housePrice = 125, hotelPrice = 350;
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                buyasset(propertyName);
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << rentalCost(baseRent, houseIncrease, hotelIncrease) << endl;
-                bank.pay(rentalCost(baseRent, houseIncrease, housePrice));
-            }
-        }
-        switchPlayer();
+        handleProperty("Sunrise Strip", 240, 125, 350, 24, 125, 700);
     }
+
 };
 
 class utility : public lands {
-    void railRoadStation() {
-        int propertyPrice = 200, baseRent = 25;
-        propertyName = "Railroad Station";
-    
+    private:
+        void handleUtility(
+        const string& utilName,
+        int propertyPrice,
+        int baseRent // For Water Works, Electric Company, Internet Provider, pass rolledNum*4
+    ) {
+        propertyName = utilName;
         cout << "You're currently on " << propertyName << endl;
     
-        if (isOwned() == false) {
+        if (!isOwned()) {
             char choice;
             cout << "This property is for sale for $" << propertyPrice << endl;
             cout << "Would you like to purchase it? [y/n]: ";
@@ -770,12 +647,11 @@ class utility : public lands {
             if (tolower(choice) == 'y') {
                 status = "Buying";
                 bank.pay(propertyPrice);
-                
                 cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
             } else if (tolower(choice) == 'n') {
                 cout << "You have missed the chance to own " << propertyName << endl;
             }
-        } else if (isOwned()) {
+        } else {
             if (owner == currentplayer) {
                 cout << "Welcome to your property!" << endl;
             } else {
@@ -784,102 +660,23 @@ class utility : public lands {
             }
         }
         switchPlayer();
+    }
+
+    public:
+    void railRoadStation() {
+        handleUtility("Railroad Station", 200, 25);
     }
     
     void waterWorkss() {
-        int propertyPrice = 150, baseRent = rolledNum*4;
-        propertyName = "Water Works";
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                cout << "Welcome to your property!" << endl;
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << baseRent << endl;
-                bank.pay(baseRent);
-            }
-        }
-        switchPlayer();
+        handleUtility("Water Works", 150, rolledNum * 4);
     }
     
     void electricCompany() {
-        int propertyPrice = 150, baseRent = rolledNum*4;
-        propertyName = "Electric Company";
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                cout << "Welcome to your property!" << endl;
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << baseRent << endl;
-                bank.pay(baseRent);
-            }
-        }
-        switchPlayer();
+        handleUtility("Electric Company", 150, rolledNum * 4);
     }
     
     void internetProvider() {
-        int propertyPrice = 150, baseRent = rolledNum*4;
-        propertyName = "Internet Provider";
-    
-        cout << "You're currently on " << propertyName << endl;
-    
-        if (isOwned() == false) {
-            char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
-            cout << "Would you like to purchase it? [y/n]: ";
-            cin >> choice;
-            inputFailure();
-    
-            if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propertyPrice);
-                
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
-            } else if (tolower(choice) == 'n') {
-                cout << "You have missed the chance to own " << propertyName << endl;
-            }
-        } else if (isOwned()) {
-            if (owner == currentplayer) {
-                cout << "Welcome to your property!" << endl;
-            } else {
-                cout << propertyName << " is owned by the other player. Rental cost is " << baseRent << endl;
-                bank.pay(baseRent);
-            }
-        }
-        switchPlayer();
+        handleUtility("Internet Provider", 150, rolledNum * 4);
     }
 
     void incomeTax() {
@@ -920,6 +717,52 @@ class utility : public lands {
     }
 };
 
+class cards : public lands{
+    private:
+    int amount;
+    string chance[3] = {"Speeding fine — pay $15", 
+                        "Bank pays you a dividend of $50", 
+                        "Pay poor tax of $40"};
+
+    string chest[3] = {"Bank error in your favor — collect $100", 
+                       "Holiday fund matures — receive $100", 
+                       "Life insurance matures — collect $100"};
+
+    int randomize(){
+        int random;
+        srand(time(0));
+        return random = rand() % 2 + 1;
+    }
+
+    public:
+    void chance(){
+        propertyName = "Chance";
+        int index = randomize();
+        cout << chance[index] << endl;
+
+        if (index == 0) {
+            amount = 15;
+            bank.pay(amount);
+        } else if (index == 1) {
+            amount = 50;
+            bank.receiveMoney(amount);
+        } else if (index == 2) {
+            amount = 40;
+            bank.pay(amount);
+        }
+        
+        switchPlayer();
+    }
+
+    void chest(){
+        propertyName = "Chest";
+        int index = randomize();
+        amount = 100;
+        cout << chest[index] << endl;
+        bank.receiveMoney(amount);
+        switchPlayer();
+    }
+};
 
 
 #endif
