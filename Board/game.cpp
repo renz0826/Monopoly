@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "operations.h"
 
 using namespace std;
 
@@ -478,7 +479,7 @@ int main() {
         }
         cout << '\n';
     }
-
+    
     vector<string> p1Labels = {
         "Player 1: " + players[0].first,
         "Balance: $" + to_string(players[0].second)

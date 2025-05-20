@@ -14,10 +14,9 @@ using namespace std;
 
 string p1 = "P1", p2 = "P2";
 string currentProperty, currentplayer = p1, status;
-string moneyFile = "FILES/" + currentplayer + "MoneyFile.csv", propertyFile = "FILES/" + currentplayer + "PropertyFile.csv";
+string moneyFile = "FILES/" + currentplayer + "Money.csv", propertyFile = "FILES/" + currentplayer + "PropertyFile.csv";
 string propertiesDetailFile = "FILES/Properties.csv", tempfile = "TEMPORARY.csv";
 string propertyName, numOfHouses, numOfHotels, owner;
-string P1currentLocation = "go", P2currentLocation = "go";
 fstream money,money2, property, file, tempo;
 int housePrice, hotelPrice;
 int rolledNum;
@@ -76,10 +75,7 @@ class Banker{
     int num100, num50, num20, num10, num1;
 
     public: 
-    void change(int surplus, int &chundred, int &cfifty, int &ctwenty, int &cten, int &cone) {
-        int change = surplus;
-        num100 = 0, num50 = 0, num20 = 0, num10 = 0, num1 = 0;
-        
+    void bankerGive(int surplus) {
         while (surplus >= 100) {
             surplus -= 100;
             num100 += 1;
@@ -108,7 +104,14 @@ class Banker{
             surplus -= 1;
             num1 += 1;
             cone +=1;
-        }    
+        }   
+    }
+
+    void change(int surplus, int &chundred, int &cfifty, int &ctwenty, int &cten, int &cone) {
+        int change = surplus;
+        num100 = 0, num50 = 0, num20 = 0, num10 = 0, num1 = 0;
+        
+        bankerGive(change);
 
         cout << "Total Change Received From the Banker: " << change << endl;
         cout << "Breakdown: " << endl;
@@ -154,61 +157,89 @@ class Banker{
         }
     }
 
+    void checkBalance(string player){
+        money.open("FILES/" + player + "Money.csv", ios::in);
+        if (money.is_open()) {
+            string line, h, f, t, te, o;
+           
+            getline(money, line);
+            stringstream ss(line);
+            getline(ss, h, ',');
+            getline(ss, f, ',');
+            getline(ss, t, ',');
+            getline(ss, te, ',');
+            getline(ss, o, ',');
+            
+            int H = stoi(h);
+            int F = stoi(f);
+            int T = stoi(t);
+            int TE = stoi(te);
+            int O = stoi(o);
+
+            cout << "Balance: " << endl;
+            printPlayerBalance(H, F, T, TE, O);
+            
+            money.close();
+        } else {
+            fileNotFound();
+        }
+    }
+
     void enterAmount(){
-         do {
-                cout << "$100: ";
-                cin >> hundred;
-                inputFailure();
+        do {
+            cout << "$100: ";
+            cin >> hundred;
+            inputFailure();
     
-                if (chundred < hundred) {
-                    cerr << "Opss... you don't have enough bills.. please try again";
-                }
+            if (chundred < hundred) {
+                cerr << "Opss... you don't have enough bills.. please try again";
+            }
                 
-            } while (chundred < hundred);
+        } while (chundred < hundred);
         
-            do {
-                cout << "$50: ";
-                cin >> fifty;
-                inputFailure();
+        do {
+            cout << "$50: ";
+            cin >> fifty;
+            inputFailure();
         
-                if (cfifty < fifty) {
-                    cerr << "Opss... you don't have enough bills.. please try again";
-                }
+            if (cfifty < fifty) {
+                cerr << "Opss... you don't have enough bills.. please try again";
+            }
                 
-            } while (cfifty < fifty);
+        } while (cfifty < fifty);
             
-            do {
-                cout << "$20: ";
-                cin >> twenty;
-                inputFailure();
+        do {
+            cout << "$20: ";
+            cin >> twenty;
+            inputFailure();
         
-                if (ctwenty < twenty) {
-                    cerr << "Opss... you don't have enough bills.. please try again";
-                }
+            if (ctwenty < twenty) {
+                cerr << "Opss... you don't have enough bills.. please try again";
+            }
                 
-            } while (ctwenty < twenty);
+        } while (ctwenty < twenty);
         
-            do {
-                cout << "$10: ";
-                cin >> ten;
-                inputFailure();
+        do {
+            cout << "$10: ";
+            cin >> ten;
+            inputFailure();
         
-                if (cten < ten) {
-                    cerr << "Opss... you don't have enough bills.. please try again";
-                }
+            if (cten < ten) {
+                cerr << "Opss... you don't have enough bills.. please try again";
+            }
                 
-            } while (cten < ten);
+        } while (cten < ten);
             
-            do {
-                cout << "$1: ";
-                cin >> one;
-                inputFailure();
+        do {
+            cout << "$1: ";
+            cin >> one;
+            inputFailure();
     
-                if (cone < one) {
-                    cerr << "Opss... you don't have enough bills.. please try again";
-                }
+            if (cone < one) {
+                cerr << "Opss... you don't have enough bills.. please try again";
+            }
                 
-            } while (cone < one);
+        } while (cone < one);
     }
     
     void pay (int price) {
@@ -324,34 +355,34 @@ class Banker{
 
     void receiveMoney(int amount) {
         money.open(moneyFile, ios::out);
-            if (money.is_open()) {
-                string line, h, f, t, te, o;
-                getline(money, line);
-                stringstream ss(line);
+        if (money.is_open()) {
+            string line, h, f, t, te, o;
+            getline(money, line);
+            stringstream ss(line);
 
-                getline(ss, h, ',');
-                getline(ss, f, ',');
-                getline(ss, t, ',');
-                getline(ss, te, ',');
-                getline(ss, o, '\n');
+            getline(ss, h, ',');
+            getline(ss, f, ',');
+            getline(ss, t, ',');
+            getline(ss, te, ',');
+            getline(ss, o, '\n');
 
-                int H = stoi(h);
-                int F = stoi(f);
-                int T = stoi(t);
-                int Te = stoi(te);
-                int O = stoi(o);    
+            int H = stoi(h);
+            int F = stoi(f);
+            int T = stoi(t);
+            int Te = stoi(te);
+            int O = stoi(o);    
 
-                F += 1;
+            bankerGive(amount);
 
-                money << h << ',' << F << ',' << t << ',' << te << ',' << o << '\n';
+            money << H << ',' << F << ',' << T << ',' << Te << ',' << O << '\n';
 
-                money.close();
+            money.close();
 
-                cout << "You recieve $" << amount << " from the bank. Your new balance is: " << endl;
-                printPlayerBalance(H, F, T, Te, O);
-            } else {
-                fileNotFound();
-            }
+            cout << "You recieve $" << amount << " from the bank. Your new balance is: " << endl;
+            printPlayerBalance(H, F, T, Te, O);
+        } else {
+            fileNotFound();
+        }    
     }
 
     void giveMoney() {
@@ -440,14 +471,13 @@ class Banker{
                         }
                     }
     
-                    tempo << name << ',' << houses << ',' << hotels << 'n' << owner << '\n';
-                    
-                    file.close();
-                    tempo.close();
-    
-                    remove(propertiesDetailFile.c_str());
-                    rename(tempfile.c_str(), propertiesDetailFile.c_str());
+                    tempo << name << ',' << houses << ',' << hotels << ',' << owner << '\n';
                 }
+                file.close();
+                tempo.close();
+
+                remove(propertiesDetailFile.c_str());
+                rename(tempfile.c_str(), propertiesDetailFile.c_str());
             } else {
                 fileNotFound();
             }
@@ -485,7 +515,8 @@ int rentalCost(int baseRent, int houseIncrease, int HotelIncrease) {
 int rollDice (string currentPlayer){
     char roll;
     do {
-        cout << currentPlayer << "Press [r] to roll your dice or [s] to surrender." << endl;
+        cout << currentPlayer << "Press [r] to roll your dice or [s] to surrender.";
+        cin>>roll;
         inputFailure();
 
         if (tolower(roll) != 'r' || tolower(roll) != 's'){
@@ -735,7 +766,8 @@ class cards : public lands{
     }
 
     public:
-    void chance(){
+    
+    void chanceCard(){
         propertyName = "Chance";
         int index = randomize();
         cout << chance[index] << endl;
@@ -754,7 +786,7 @@ class cards : public lands{
         switchPlayer();
     }
 
-    void chest(){
+    void chestCard(){
         propertyName = "Chest";
         int index = randomize();
         amount = 100;

@@ -1,15 +1,17 @@
+#pragma once
+
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
+
 #include <iostream>
 #include <limits> 
-#include <windows.h> 
 #include <cstdlib>  
 #include <vector>
-#include <cctype> //for toupper
-
+#include <cctype> 
 using namespace std;
 
 //functions
 void showInstructions();
-void displayMenu();
 void clearScreen(); 
 void pauseScreen();   
 
@@ -35,17 +37,17 @@ void displayInstructionPage(const string& pageContent) {
 
 // Function to display the instructions menu and handle user choice
 void showInstructions() {
-    vector<string> sections;
-    sections.push_back("Setup");
-    sections.push_back("Taking Turns");
-    sections.push_back("Resolving Your Landing");
-    sections.push_back("Building Upgrades");
-    sections.push_back("Jail Rules");
-    sections.push_back("Bankruptcy & Winning");
-    sections.push_back("Return to Main Menu");
-    
-     vector<string> pages;
-    pages.push_back(R"(
+    vector<string> sections = {
+        "Setup",
+        "Taking Turns",
+        "Resolving Your Landing",
+        "Building Upgrades",
+        "Jail Rules",
+        "Bankruptcy & Winning",
+        "Return to Main Menu"
+    };
+    vector<string> pages = {
+        R"(
 ===== Setup =====
   - Each player chooses a token and places it on Go.
   - Each begins with $500 in bills:
@@ -55,15 +57,14 @@ void showInstructions() {
     - 2 x $10
     - 5 x $1
   - The Chance and Community Chest Cards will be shuffled.
-)");
-
- pages.push_back(R"(
+)",
+        R"(
 ===== Taking Turns =====
   - On your turn, roll a die and move your token forward that many spaces,
     wrapping around past space 17 back to Go.
   - If you pass or land on Go, collect $200 immediately.
-)");
-    pages.push_back(R"(
+)",
+        R"(
 ===== Resolving Your Landing =====
   - Unowned Property / Utility / Railroad:
     - You may choose to buy it for its listed price or decline.
@@ -77,8 +78,8 @@ void showInstructions() {
     - Move directly to the Jail space; your turn ends without collecting Go.
   - Jail (Just Visiting) / Free Parking:
     - No action required.
-)");
-    pages.push_back(R"(
+)",
+        R"(
 ===== Building Upgrades (Optional After Movement) =====
   - If you own both properties of a color group, you may build on them once per turn.
   - House Costs:
@@ -92,77 +93,45 @@ void showInstructions() {
       - Green: $225
       - Blue: $300
     - A hotel replaces all houses and sets rent to the flat hotel rate.
-)");
-    pages.push_back(R"(
+)",
+        R"(
 ===== Jail Rules =====
   - If you land on Go to Jail, you remain there until you either:
     - Pay $50 at the start of your next turn.
     - Use a Get Out of Jail Free card.
   - Once freed, you move according to that turn’s dice roll (or pay first, then roll).
-)");
-    pages.push_back(R"(
+)",
+        R"(
 ===== Bankruptcy & Winning =====
   - If at any time you owe more than you can pay, you are bankrupt and out of the game.
   - The game does not have a mortgage system.
   - The player with a non-negative balance is the winner.
-)");
+)"
+    };
 
-    clearScreen();
-    cout << "===== Game Instructions =====\n";
-    cout << "Please choose a section to read:\n";
-    for (size_t i = 0; i < sections.size(); ++i) {
-        cout << "[" << (i + 1) << "] " << sections[i] << endl;
-    }
-    cout << "Enter the number of the section you want to read: ";
-
-    int choice;
-    cin >> choice;
-    cin.ignore();
-
-    if (choice >= 1 && choice <= sections.size() - 1) {
-        displayInstructionPage(pages[choice - 1]);
-        showInstructions(); //go back to the menu after reading
-    } else if (choice == sections.size()) {
-        cout << "\nReturning to the main menu...\n";
-    } else {
-        cout << "\nInvalid choice. Please try again.\n";
-        pauseScreen();
-        showInstructions(); //redisplay the menu if invalid input
-    }
-}
-
-int main() {
-	displayMenu();
-    showInstructions();
-    return 0;
-}
-
-//function to display main menu and handle user input
-void displayMenu() {
     int choice = 0;
     do {
-        cout << "\n===== Game Menu =====\n";
-        cout << "[1] Play Game\n";
-        cout << "[2] How to play?\n";
-        cout << "[3] Exit\n";
-        cout << "Enter your choice: ";
+        clearScreen();
+        cout << "===== Game Instructions =====\n";
+        cout << "Please choose a section to read:\n";
+        for (size_t i = 0; i < sections.size(); ++i) {
+            cout << "[" << (i + 1) << "] " << sections[i] << endl;
+        }
+        cout << "Enter the number of the section you want to read: ";
         cin >> choice;
-
         cin.ignore();
 
-        switch (choice) {
-            case 1:
-                cout << "\nStarting the game...\n\n";
-                //umpisa game logic here
-                break;
-            case 2:
-                showInstructions();
-                break;
-            case 3:
-                cout << "\nExiting the game. Goodbye!\n";
-                break;
-            default:
-                cout << "\nInvalid choice. Please try again.\n\n";
+        if (choice >= 1 && choice <= static_cast<int>(sections.size()) - 1) {
+            displayInstructionPage(pages[choice - 1]);
+        } else if (choice == static_cast<int>(sections.size())) {
+            cout << "\nReturning to the main menu...\n";
+            pauseScreen();
+            break; // Exit the loop and return to main menu
+        } else {
+            cout << "\nInvalid choice. Please try again.\n";
+            pauseScreen();
         }
-    } while (choice != 3);
+    } while (true);
 }
+
+#endif
