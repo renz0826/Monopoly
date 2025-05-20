@@ -9,7 +9,7 @@ using namespace std;
 // ANSI background colors
 const string RESET = "\x1b[0m";
 const string BG_BLACK = "\x1b[40m";
-const string BG_WHITE = "\x1b[107m";
+const string BG_WHITE  = "\033[48;5;15m\033[30m";
 const string BG_RED = "\x1b[41m";
 
 void menu() {
