@@ -50,7 +50,7 @@ class Colors{
     const string marker = string(bb + "*" + re + " " + rr + "*" + re);
     const string dollar = string(g + "$" + re);
     const string c_cc = string(v + "?" + re + " " + br + "###" + re);
-    const string jail = string(pg + "| | |" + re);
+    const string jail = string(oo + "| | |" + re);
     const string turn = string(rr + ">" + re);
     const string owned = string(rr + "!" + re);
     const string property = string(w + "#" + re);
@@ -58,8 +58,13 @@ class Colors{
     const string houseg = string(gg + "#" + re);
     const string houseb = string(bb + "#" + re);
     const string housey = string(yy + "#" + re);
-    const string bankrupt = string(rr + "--$" + re);
-    const string win = string(gg + "$++" + re);
+    const string bankrupt = string(r + "--$" + re);
+    const string tax = string(rr + "-$" + re);
+    const string win = string(g + "$++" + re);
+    const string util = string(ww + "#" + re);
+    const string free = string(rr + "X" + re);
+    const string go = string(rr + ">-->" + re);
+    
 };
 
 #endif // BOARD_H
