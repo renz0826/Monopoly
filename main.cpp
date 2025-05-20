@@ -3,7 +3,7 @@
 #include "essentials.h"
 #include "board.h"
 #include "instructions.h"
-#include "help.h"
+//#include "help.h"
 #include "move.h"
 
 using namespace std;
