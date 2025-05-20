@@ -44,11 +44,6 @@ string getInputInBoxCenteredPrompt(const string &prompt, int boxWidth) {
     return prompt + " " + userInput;
 }
 
-
-
-
-
-
 string centerText(const string &text, int width) {
     // Strip ANSI codes for length calculation
     size_t visibleLength = 0;
