@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "operations.h"
+//#include "operations.h"
 
 using namespace std;
 
@@ -86,6 +86,7 @@ int main() {
     system("cls");
 #else
     system("clear");
+    
 #endif
 
     vector<string> pixelArt = {
