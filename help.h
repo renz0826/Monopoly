@@ -10,12 +10,51 @@
 
 using namespace std;
 
+void separation(){
+    cout << "+-------------+-------------+-------------+-------------+-------------+-------------+" << endl;
+}
+
+void breakline(){
+    cout << "-------------------------------------------------------------------------------------" << endl;
+}
+
+void inputFailure(){
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore();
+    
+        cout << "Invalid input, please try again." << endl;
+    }
+}
+
+void fileNotFound(){
+    cerr << "File cannot be found." << endl;
+}
+
+
+void pressEnterToContinue() {
+    cout << "Press Enter to continue...";
+    cin.ignore();
+    cin.get();
+}
+
+int getPlayerTotal(const string& player) {
+    ifstream file(player + "Money.csv");
+    if (!file.is_open()) return 0;
+    int h, f, t, te, fi, o;
+    char comma;
+    file >> h >> comma >> f >> comma >> t >> comma >> te >> comma >> fi >> comma >> o;
+    return h*100 + f*50 + t*20 + te*10 + fi*5 + o*1;
+}
+
 struct Property {
     string name, house, hotel, owner;
+    int iHouse, iHotel;
 };
 
 Property readProperty(string &line){
     string name, house, hotel, owner;
+    int iHouse = 0, iHotel = 0;
     stringstream ss(line);
     
     getline(ss, name, ',');
@@ -23,14 +62,17 @@ Property readProperty(string &line){
     getline(ss, hotel, ',');
     getline(ss, owner, ',');
 
-    return {name, house, hotel, owner};
+    try { iHouse = stoi(house); } catch (...) { iHouse = 0; }
+    try { iHotel = stoi(hotel); } catch (...) { iHotel = 0; }
+
+    return {name, house, hotel, owner, iHouse, iHotel};
 }
 
 string setMoneyFileName(string& currentplayer){
-    return "FILES/" + currentplayer + "Money.csv";
+    return currentplayer + "Money.csv";
 }
 
-struct  Money {
+struct Money {
     int hundred, fifty, twenty, ten, five, one;
 };
 
@@ -83,12 +125,12 @@ void initializePropertiesCSV() {
         "Bayview Boulevard",
         "Go to Jail",
         "Chance",
-        "Sunrise Strip",
+        "Sunset Strip",
         "Internet Provider",
         "Community Chest"
     };
 
-    ofstream file("FILES/Properties.csv", ios::out | ios::trunc);
+    ofstream file("Properties.csv", ios::out | ios::trunc);
     if (!file.is_open()) {
         cerr << "Could not open Properties.csv for writing." << endl;
         return;

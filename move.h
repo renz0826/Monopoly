@@ -22,7 +22,7 @@ public:
     }
 
     // Draw the board, using the current playerPositions.
-    void drawBoard() {
+    void drawBoard(const string& p1Balance, const string& p2Balance, const string& currentPlayer) {
         // Board layout parameters.
         const int numBoxes       = 6;
         const int cellWidth      = 13;
@@ -72,17 +72,20 @@ public:
         };
 
         // Dialog declarations.
-        string dialog = "Welcome!";
-        string subDialog = "Choose wisely";
-        string choiceDialog = "yes";
-
+        string dialog = "Way To Go Business Tycoons!";
+        string balances = "P1 Current Balance: " + p1Balance + " | " + "P2 Current Balance: " + p2Balance;
+        string currentPlayerMsg = currentPlayer + " turns to play";
+        
         // 3) Print the board using your pre-defined functions.
         Board::printHorizontalBorder(numBoxes, cellWidth, gap);
         Board::printHeaderLine(tilesStandard, numBoxes, cellWidth, gap);
         Board::printInteriorBlankLines(numBoxes, cellWidth, cellHeight - 1, gap, playerPositions, 0, false);
         Board::printHorizontalBorder(numBoxes, cellWidth, gap);
         Board::printSpecialRow(specialTiles, cellWidth, specialGap, playerPositions, 6, 7);
-        Board::printSpecialRowWithDialog(specialTiles2, cellWidth, specialGap, dialog, subDialog, choiceDialog, specialInterior, playerPositions, 8, 9);
+        Board::printSpecialRowWithDialog(
+            specialTiles2, cellWidth, specialGap, dialog, balances, currentPlayerMsg,
+            specialInterior, playerPositions, 8, 9
+        );
         Board::printSpecialRow(specialTiles3, cellWidth, specialGap, playerPositions, 10, 11);
         Board::printSpecialRow2(specialTiles4, cellWidth, specialGap, playerPositions, 12, 13);
         Board::printHorizontalBorder(numBoxes, cellWidth, gap);

@@ -1,8 +1,7 @@
 #include <iostream>
 #include "operations.h"
-#include "essentials.h"
 #include "board.h"
-#include "instructions.h"
+//#include "h2p.h"
 #include "help.h"
 #include "move.h"
 
@@ -15,13 +14,7 @@ const vector<string> boardTiles = {
     "Chance", "Sunset Strip", "Internet Provider", "Community Chest", "Railroad Station"
 };
 
-void pressEnterToContinue() {
-    cout << "Press Enter to continue...";
-    cin.ignore();
-    cin.get();
-}
-
-int main(){
+int main() {
     const string RESET = "\x1b[0m";
     const string BG_BLACK = "\x1b[40m";
     const string BG_WHITE = "\x1b[107m";
@@ -78,34 +71,44 @@ int main(){
             utility util;
             cards card;
             currentplayer = p1;
-            
-            bank.giveMoney();
-            board.drawBoard();
+
+            //dri ko nag gamit pointers
+            const int initialBills[6] = {2, 2, 6, 5, 5, 5}; 
+            bank.giveMoney(&p1, initialBills);
+            bank.giveMoney(&p2, initialBills);
+            string p1BalanceStr = "$" + to_string(getPlayerTotal("P1"));
+            string p2BalanceStr = "$" + to_string(getPlayerTotal("P2"));
+            board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
+
             while (true) {
                 if (currentplayer == "P1") {
-                    P1Pos = rollDice(currentplayer);
+                    P1Pos = rollDice();
                     int oldPos = P1CurrentPos;
                     P1CurrentPos = (P1CurrentPos + P1Pos) % boardTiles.size();
                     if (P1CurrentPos <= oldPos) {
-                        go();
+                        go(currentplayer);
                     }
                 } else {
-                    P2Pos = rollDice(currentplayer);
+                    P2Pos = rollDice();
                     int oldPos = P2CurrentPos;
                     P2CurrentPos = (P2CurrentPos + P2Pos) % 20;
                     if (P2CurrentPos < oldPos) {
-                        go();
+                        go(currentplayer);
                     }
                 }
+                
+                system("cls");
                 board.playerPositions[0] = Board::posSpecifier(P1CurrentPos);
                 board.playerPositions[1] = Board::posSpecifier(P2CurrentPos);
-                board.drawBoard();
-               
+                string p1BalanceStr = "$" + to_string(getPlayerTotal("P1"));
+                string p2BalanceStr = "$" + to_string(getPlayerTotal("P2"));
+                board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
+
                 int currentPlayerPos = (currentplayer == "P1") ? P1CurrentPos : P2CurrentPos;
                 
                 string tile = boardTiles[currentPlayerPos];
                 if (tile == "GO!") {
-                    go();
+                    go(currentplayer);
                 } else if (tile == "Redford Avenue") {
                     land.redFordAvenue();
                 } else if (tile == "Community Chest") {
@@ -141,14 +144,13 @@ int main(){
                         util.goToJail(P2CurrentPos);
                     }
 
-                    // Update board display
+                    system("cls");
                     board.playerPositions[0] = Board::posSpecifier(P1CurrentPos);
                     board.playerPositions[1] = Board::posSpecifier(P2CurrentPos);
-                    board.drawBoard();
-
-                    // Switch turn
-                    switchPlayer();
-                    continue; // Go to next player's turn
+                    string p1BalanceStr = "$" + to_string(getPlayerTotal("P1"));
+                    string p2BalanceStr = "$" + to_string(getPlayerTotal("P2"));
+                    board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
+                    continue; 
                 } else if (tile == "Chance") {
                     card.chanceCard();
                 } else if (tile == "Sunset Strip") {
@@ -158,13 +160,22 @@ int main(){
                 } else {
                     cout << "Unknown tile!" << endl;
                 }
+                separation();
                 pressEnterToContinue();
                 system("cls");
-                board.drawBoard();
+                board.playerPositions[0] = Board::posSpecifier(P1CurrentPos);
+                board.playerPositions[1] = Board::posSpecifier(P2CurrentPos);
+                p1BalanceStr = "$" + to_string(getPlayerTotal("P1"));
+                p2BalanceStr = "$" + to_string(getPlayerTotal("P2"));
+                board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
             }
         } else if (choice == 2){
-           showInstructions();
+          // HOW ins;
+          // ins.showInstructions();
         } else if (choice == 3){
+            system("cls");
+            cout << "Exiting the game...";
+            pressEnterToContinue();
             exit(0);
         }
     } 

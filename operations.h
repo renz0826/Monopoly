@@ -8,18 +8,17 @@
 #include <fstream>
 #include <sstream>
 #include <random>
-#include "essentials.h"
 #include "help.h"
+#include "board.h"
+#include "move.h"
 
 using namespace std;
 
 const string p1 = "P1", p2 = "P2";
-string currentProperty, currentplayer, status;
-string moneyFile = "FILES/" + currentplayer + "Money.csv", propertyFile = "FILES/" + currentplayer + "PropertyFile.csv";
-string propertyFile = "FILES/Properties.csv", tempfile = "FILES/TEMPORARY.csv";
-string propertyName, numOfHouses, numOfHotels, owner;
+string currentplayer, status;
+string propertyFile = "Properties.csv", tempfile = "TEMPORARY.csv";
+string propertyName, owner;
 fstream money, property, file, tempo;
-int housePrice, hotelPrice;
 int rolledNum;
 string line;
 int changeHundred = 0, changeFifty = 0, changeTwenty = 0, changeTen = 0, changeFive = 0, changeOne = 0;
@@ -32,36 +31,38 @@ void switchPlayer() {
     }
 }
 
-bool isOwned(string &propName) {      
+bool isOwned(const string &propName) {      
    property.open(propertyFile, ios::in);
    if(property.is_open()){
        while (getline(property, line)) {
-           Property property = readProperty(line);
-           if (property.name == propName && property.owner != "") {
-                return true;
-                break;
-           } else {
-                return false;
-                break;
+           Property prop = readProperty(line);
+           if (prop.name == propName) {
+               owner = prop.owner;                
+               property.close();
+               return !prop.owner.empty();
            }
        }
        property.close();
+       owner = "";
+       return false;
    } else {
      fileNotFound();
+     return false;
    }
 }
 
 int total (int hundred, int fifty, int twenty, int ten, int five, int one){
-    return (hundred * 100) + (fifty * 50) + (twenty * 20) + (ten * 10) + (five * 10) + (one * 1);
+    return (hundred * 100) + (fifty * 50) + (twenty * 20) + (ten * 10) + (five * 5) + (one * 1);
 }
 
 void printPlayerBalance(int hundred, int fifty, int twenty, int ten, int five, int one) {
-    cout << " $100: " << hundred
-         << "  $50: " << fifty
-         << "  $20: " << twenty
-         << "  $10: " << ten
-         << "   $1: " << one
-         << "  Total: " << total(hundred, fifty, twenty, ten, five, one) << endl;
+    cout << "$100: " << hundred << " | "
+         << "$50: " << fifty << " | "
+         << "$20: " << twenty << " | "
+         << "$10: " << ten << " | "
+         << "$5: " << five << " | "
+         << "$1: " << one << " | " 
+         << "Total: " << total(hundred, fifty, twenty, ten, five, one) << " | " <<  endl;
 }
 
 class Banker{
@@ -81,9 +82,30 @@ class Banker{
         while (surplus >= 1) {surplus -= 1; changeOne +=1;}   
     }
 
+    void creditToPlayer(const string& player, int amount) {
+        money.open(setMoneyFileName(currentplayer));
+        if (money.is_open()){
+            getline(money, line);
+            Money bills = billToInt(line);
+            money.close();
+    
+            int amt = amount;
+            while (amt >= 100) { bills.hundred++; amt -= 100; }
+            while (amt >= 50) { bills.fifty++; amt -= 50; }
+            while (amt >= 20) { bills.twenty++; amt -= 20; }
+            while (amt >= 10) { bills.ten++; amt -= 10; }
+            while (amt >= 5) { bills.five++; amt -= 5; }
+            while (amt >= 1) { bills.one++; amt -= 1; }
+    
+            money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
+            money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
+            money.close();
+        }
+    }
+
     void change(int surplus) {
         bankerGive(surplus);
-
+        breakline();
         cout << "Total Change Received From the Banker: " << surplus << endl;
         cout << "Details: " << endl;
         cout << "$100: " << changeHundred;
@@ -91,11 +113,11 @@ class Banker{
         cout << " $20: " << changeTwenty;
         cout << " $10: " << changeTen;
         cout << "  $5: " << changeFive;
-        cout << "  $1: " << changeOne; 
+        cout << "  $1: " << changeOne << endl; 
     }
 
     bool isPlayerLost(string currentPlayer, int due){
-        money.open(moneyFile, ios::out);
+        money.open(setMoneyFileName(currentPlayer), ios::in);
         if (money.is_open()) {
             getline(money, line);
             Money bills = billToInt(line);
@@ -105,6 +127,7 @@ class Banker{
             money.close();
         } else {
             fileNotFound();
+            return false;
         }
     }
 
@@ -169,7 +192,7 @@ class Banker{
         } while (pTen < ten);
         
         do {
-            cout << "$10: ";
+            cout << "$5: ";
             cin >> five;
             inputFailure();
         
@@ -194,23 +217,26 @@ class Banker{
     void pay(string &currentplayer, int &price) {
         
         if (isPlayerLost(currentplayer, price)) {
+            separation();
             cout << currentplayer << " is bankrupt! Game over." << endl;
             switchPlayer();
             cout  << currentplayer << " won the Game! Way to Go, Tycoon!" << endl;
+            pressEnterToContinue();
+            exit(0);
         }
         
         money.open(setMoneyFileName(currentplayer), ios::in);
         if (money.is_open()){
             getline(money, line);
             Money bills = billToInt(line);
-
-            cout << "Your Current Balance: " << endl;
+            breakline();
+            cout << "Your Current ";
             checkBalance(currentplayer);
             pHundred = bills.hundred;
             pFifty = bills.fifty;
             pTwenty = bills.twenty;
             pTen = bills.ten;
-            pFive = bills.fifty;
+            pFive = bills.five;
             pOne = bills.one;
 
             money.close();
@@ -221,6 +247,7 @@ class Banker{
         money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
         if (money.is_open()){
             int totalGiven;
+            breakline();
             cout << "Practice your Math Skills! Enter the amount of the bill owed to calculate the correct amount." << endl;
 
             do {
@@ -229,13 +256,15 @@ class Banker{
 
                 if (total(hundred, fifty, twenty, ten, five, one) < price) {
                     cout << "Opss... it looks like your missing some bills to cover your expense. Try Again." << endl;
+                    breakline();
                 }
 
                 totalGiven = total(hundred, fifty, twenty, ten, five, one);
             } while (totalGiven < price);
-
+            breakline();
             cout << "You have given banker: " << endl;
             printPlayerBalance(hundred, fifty, twenty, ten, five, one);
+            pressEnterToContinue();
 
             pHundred -= hundred;
             pFifty -= fifty;
@@ -255,7 +284,7 @@ class Banker{
                 pFive += changeFive;
                 pOne += changeOne;
 
-                if (status == "Buying") {
+                if (status == "Rent") {
                     switchPlayer();
                     fstream money2;
                     money2.open(setMoneyFileName(currentplayer), ios::in);
@@ -289,14 +318,17 @@ class Banker{
             
             cout << "Current ";
             checkBalance(currentplayer);
+            breakline();
         }
     }
 
     void receiveMoney(int amount) {
-        money.open(moneyFile, ios::out | ios::trunc);
+        money.open(setMoneyFileName(currentplayer), ios::in);
         if (money.is_open()) {
             getline(money, line);
-            Money bills = billToInt(line);  
+            Money bills = billToInt(line);
+            money.close();
+
             bankerGive(amount);
 
             changeHundred += bills.hundred;
@@ -306,42 +338,33 @@ class Banker{
             changeFive += bills.five;
             changeOne += bills.one;
 
+            money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
             money << changeHundred << ',' << changeFifty << ',' << changeTwenty << ',' << changeTen << ',' << changeFive << ',' << changeOne << '\n';
             money.close();
 
-            cout << "You recieve $" << amount << " from the bank. Your new balance is: " << endl;
+            breakline();
+            cout << "You receive $" << amount << " from the bank. Your new balance is: " << endl;
             printPlayerBalance(changeHundred, changeFifty, changeTwenty, changeTen, changeFive, changeOne);
         } else {
             fileNotFound();
-        }    
+        }
     }
 
-    void giveMoney() {
-        money.open(currentplayer, ios::out);
-        if (money.is_open()) {
-            money << 2 << ',' << 2 << ','  << 6 << ',' << 5  << ',' <<  5 << ',' <<  5 << '\n';
-            money.close();
+    void giveMoney(const string* player, const int* bills) {
+        if (!player || !bills) return;
+        string fileName = *player + "Money.csv";
+        fstream moneyFile(fileName, ios::out | ios::trunc);
+        if (moneyFile.is_open()) {
+            moneyFile << bills[0] << ',' << bills[1] << ',' << bills[2] << ',' << bills[3] << ',' << bills[4] << ',' << bills[5] << '\n';
+            moneyFile.close();
+            cout << *player << " now has a balance of: " << endl;
+            printPlayerBalance(bills[0], bills[1], bills[2], bills[3], bills[4], bills[5]);
         } else {
             fileNotFound();
         }
-        
-        switchPlayer();
-
-        money.open(currentplayer, ios::out);
-        if (money.is_open()) {
-            money << 2 << ',' << 2 << ','  << 6 << ',' << 5  << ',' <<  5 << ',' <<  5 << '\n';
-            money.close();
-        } else {
-            fileNotFound();
-        }
-
-        switchPlayer();
-
-        cout << "Each player now has a balance of: " << endl;
-        printPlayerBalance(2,2,6,5,5,5);
     }
 
-    void buyAsset(string &name, int &housePrice, int &hotelPrice) {
+    void buyAsset(const string &name, int &housePrice, int &hotelPrice) {
         char yn;
         cout << "Would you like to purchase some assets to increase the value of your land? [y/n]: ";
         cin >> yn;
@@ -356,20 +379,22 @@ class Banker{
                     Property property = readProperty(line);
             
                     if (property.name == name && property.owner == currentplayer) {
+                        breakline();
                         cout << "Current Property Details" << endl;
                         cout << "Number of Houses: " << property.house << endl;
                         cout << "Number of Hotels: " << property.hotel << endl;
                         cout << "Note that you can only upgrade to HOTELS and you must have 4 houses to do so." << endl;
-            
+                        breakline();
                         if (property.house == "4") {
                             char yn;
                             cout << "Would you like to upgrade your house properties into a hotel? [y/n]: ";
                             cin >> yn;
                             inputFailure();
-            
+                            
                             if (tolower(yn) == 'y') {
+                                pay(currentplayer,hotelPrice);
                                 property.house = "0";
-                                int iHotel = stoi(property.hotel);
+                                int iHotel = property.iHotel;
                                 iHotel += 1;
             
                                 property.hotel = to_string(iHotel);
@@ -383,19 +408,18 @@ class Banker{
                                 cin >> housesToPurchase;
                                 inputFailure();
                                 
-                                if (housesToPurchase > 4 || housesToPurchase <= 0 ||( housesToPurchase + stoi(property.house) < 4)) {
+                                if (housesToPurchase > 4 && housesToPurchase <= 0 && ( housesToPurchase + property.iHouse < 4)) {
                                     cerr << "Invalid Input. Note that you're limited to have 4 houses for this property." << endl;
                                 }
                                 
-                            } while (housesToPurchase > 4 || housesToPurchase <= 0 ||( housesToPurchase + stoi(property.house) < 4) );
+                            } while (housesToPurchase > 4 && housesToPurchase <= 0 &&( housesToPurchase + property.iHouse < 4) );
                             
                             int totalDue = housePrice * housesToPurchase;
-                            cout << "For  " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue;
+                            cout << "For  " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue << endl;
                             pay(currentplayer, totalDue); 
                             property.house += housesToPurchase;
                         }
                     }
-    
                     tempo << property.name << ',' << property.house << ',' << property.hotel << ',' << property.owner << '\n';
                 }
                 file.close();
@@ -406,121 +430,92 @@ class Banker{
             } else {
                 fileNotFound();
             }
+        } else if (tolower(yn) == 'n') {
+            cout << "Maybe next time!, " << currentplayer << endl;
         }
     }
 };
 
 
-int rentalCost(int baseRent, int houseIncrease, int HotelIncrease) {
-    file.open(propertiesDetailFile, ios::in) ;
-    if (file.is_open()) {
-        string line;
+int rentalCost(const string name, int baseRent, int houseIncrease, int HotelIncrease) {
+    property.open(propertyFile, ios::in) ;
+    if (property.is_open()) {
         int totalCost;
-        string name, houses, hotels, owner;
-        while (getline(file, line)) {
-            stringstream ss(line);
-                
-            getline(ss, name, ',');
-            getline(ss, houses, ',');
-            getline(ss, hotels, ',');
-            getline(ss, owner, '\n');
+        while (getline(property, line)) {
+            Property property = readProperty(line);
 
-            if (name == propertyName && owner != currentplayer) {
-                int iHouse = stoi(houses);
-                int iHotel = stoi(hotels);
-
-                return totalCost = baseRent + (iHouse*houseIncrease) + (iHotel*HotelIncrease);
+            if (property.name == name && property.owner != currentplayer) {
+                return totalCost = baseRent + (property.iHouse*houseIncrease) + (property.iHotel*HotelIncrease);
             }
         }
+        property.close();
+    } else {
+        fileNotFound();
+    }
+    return 0;
+}
+
+int rollDice() {
+    char roll;
+    do {
+        cout << currentplayer << " Press [r] to roll your dice or [s] to surrender.";
+        cin>>roll;
+        inputFailure();
+
+        if (tolower(roll) != 'r' && tolower(roll) != 's'){
+            cout << "Invalid input, please try again." << endl;
+        }
+    } while (tolower(roll) != 'r' && tolower(roll) != 's');
+
+    if (tolower(roll) == 'r') {
+        srand(time(0));
+        int random = rand() % 6 + 1;
+        rolledNum = random;
+        return rolledNum;
+    } else if (tolower(roll) == 's') {
+        cout << currentplayer << " surrendered." << endl;
+        switchPlayer();
+        cout << currentplayer << " won the game by default." << endl;
+        pressEnterToContinue();
+        exit(0);
+    }
+    return 0;
+}
+
+void go(string &currentplayer){
+    Banker bank;
+    propertyName = "go";
+
+    cout << currentplayer << " landed on or passed GO! Collect $200." << endl;
+    money.open(setMoneyFileName(currentplayer), ios::in);
+    if (money.is_open()) {
+        getline(money, line);
+        Money bills = billToInt(line);
+        money.close();
+
+        bills.hundred += 2;
+
+        money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
+        money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
+        money.close();
+
+        cout << "Your Current ";
+        bank.checkBalance(currentplayer);
+
+        pressEnterToContinue();
+
     } else {
         fileNotFound();
     }
 }
 
-int rollDice (string currentPlayer){
-    char roll;
-    do {
-        cout << currentPlayer << "Press [r] to roll your dice or [s] to surrender.";
-        cin>>roll;
-        inputFailure();
-
-        if (tolower(roll) != 'r' || tolower(roll) != 's'){
-            cout << "Invalid input, please try again." << endl;
-        }
-    } while (tolower(roll) != 'r' || tolower(roll) != 's');
-    
-    if (tolower(roll == 'r')) {
-        rolledNum = 0;
-        srand(time(0));
-        int random = rand() % 6 + 1;
-    
-        rolledNum = random;
-        return random;
-    } else if (tolower(roll) == 's'){
-        cout << currentPlayer << " surrendered.";
-        switchPlayer();
-        cout << currentPlayer << " won the game by default.";
-
-        exit(0);
-    }
-}
-
-void go(){
-    propertyName = "go";
-    static bool firstTurnP1 = true;
-    static bool firstTurnP2 = true;
-
-    if ((currentplayer == p1 && !firstTurnP1) || (currentplayer == p2 && !firstTurnP2)) {
-        cout << currentplayer << " landed on or passed GO! Collect $200." << endl;
-        string fileName = "FILES/" + currentplayer + "MoneyFile.csv";
-        fstream moneyFileStream;
-        moneyFileStream.open(fileName, ios::in);
-        if (moneyFileStream.is_open()) {
-            string line;
-            getline(moneyFileStream, line);
-            stringstream ss(line);
-            int h, f, t, te, o;
-            string s100, s50, s20, s10, s1;
-            getline(ss, s100, ',');
-            getline(ss, s50, ',');
-            getline(ss, s20, ',');
-            getline(ss, s10, ',');
-            getline(ss, s1, ',');
-            h = stoi(s100);
-            f = stoi(s50);
-            t = stoi(s20);
-            te = stoi(s10);
-            o = stoi(s1);
-            moneyFileStream.close();
-
-            h += 2;
-
-            moneyFileStream.open(fileName, ios::out | ios::trunc);
-            moneyFileStream << h << ',' << f << ',' << t << ',' << te << ',' << o << '\n';
-            moneyFileStream.close();
-
-            cout << currentplayer << "'s new balance: " << endl;
-            cout << " $100: " << h << " $50: " << f << " $20: " << t << " $10: " << te << " $1: " << o << endl;
-        } else {
-            fileNotFound();
-        }
-    }
-    if (currentplayer == p1) firstTurnP1 = false;
-    if (currentplayer == p2) firstTurnP2 = false;
-
-    rollDice(currentplayer);
-}
-
 class lands{
-    private: 
-    int numOfHouse, numOfHotel;
-    int propertyPrice, baseRent = propertyPrice * 0.1;
-    int housePrice, hotelPrice; 
+    private:
 
     void handleProperty(const string& propName, int propPrice, int housePrice, int hotelPrice, int baseRent, int houseIncrease, int hotelIncrease) {
         cout << "You're currently on " << propName << endl;
                 
-        if (!isOwned()) {
+        if (!isOwned(propName)) {
             char choice;
             cout << "This property is for sale for $" << propPrice << endl;
             cout << "Would you like to purchase it? [y/n]: ";
@@ -528,19 +523,38 @@ class lands{
             inputFailure();
                     
             if (tolower(choice) == 'y') {
-                status = "Buying";
-                bank.pay(propPrice);
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
+                bank.pay(currentplayer ,propPrice);
+
+                property.open(propertyFile, ios::in);
+                tempo.open(tempfile, ios::out);
+                if (property.is_open() && tempo.is_open()){
+                   while (getline(property, line)) {
+                        Property prop = readProperty(line);
+                        if (prop.name == propName) {
+                            tempo << prop.name << "," << prop.house << "," << prop.hotel << "," << currentplayer << "\n";
+                        } else {
+                            tempo << line << "\n";
+                        }
+                   }
+                   property.close();
+                   tempo.close();
+                   remove(propertyFile.c_str());
+                   rename(tempfile.c_str(), propertyFile.c_str());
+                }
+                cout << "Congrats!, " << currentplayer << ". You now own " << propName << endl;
             } else if (tolower(choice) == 'n') {
                 cout << "You have missed the chance to own " << propName << endl;
             }
          } else {
             if (owner == currentplayer) {
-                bank.buyAsset(propName);
+                bank.buyAsset(propName, housePrice, hotelPrice);
+                cout << "Congrats on your purchase!." << endl;
              } else {
-                int rent = rentalCost(baseRent, houseIncrease, hotelIncrease);
-                cout << propName << " is owned by the other player. Rental cost is " << rent << endl;
-                bank.pay(rent);
+                int rent = rentalCost(propName, baseRent, houseIncrease, hotelIncrease);
+                status = "Rent";
+                cout << propName << " is owned by the other player. Rental cost is $" << rent << endl;
+                bank.pay(currentplayer, rent);
+                cout << "Your rival said thanks! :)" << endl;
             }
          }
             switchPlayer();
@@ -581,20 +595,36 @@ class lands{
 
 class utility : public lands {
     private:
-        void handleUtility(const string& utilName, int propertyPrice, int baseRent) {
+        void handleUtility(const string& utilName, int utilPrice, int baseRent) {
         cout << "You're currently on " << utilName << endl;
     
-        if (!isOwned()) {
+        if (!isOwned(utilName)) {
             char choice;
-            cout << "This property is for sale for $" << propertyPrice << endl;
+            cout << "This property is for sale for $" << utilPrice << endl;
             cout << "Would you like to purchase it? [y/n]: ";
             cin >> choice;
             inputFailure();
     
             if (tolower(choice) == 'y') {
                 status = "Buying";
-                bank.pay(propertyPrice);
-                cout << "Congrats!, " << currentplayer << ". You now own this land" << endl;
+                bank.pay(currentplayer, utilPrice);
+                property.open(propertyFile, ios::in);
+                tempo.open(tempfile, ios::out);
+                if (property.is_open() && tempo.is_open()){
+                   while (getline(property, line)) {
+                        Property util = readProperty(line);
+                        if (util.name == utilName) {
+                            tempo << util.name << "," << util.house << "," << util.hotel << "," << currentplayer << "\n";
+                        } else {
+                            tempo << line << "\n";
+                        }
+                   }
+                   property.close();
+                   tempo.close();
+                   remove(propertyFile.c_str());
+                   rename(tempfile.c_str(), propertyFile.c_str());
+                }
+                cout << "Congrats!, " << currentplayer << ". You now own " << utilName << endl;
             } else if (tolower(choice) == 'n') {
                 cout << "You have missed the chance to own " << utilName << endl;
             }
@@ -603,7 +633,7 @@ class utility : public lands {
                 cout << "Welcome to your property!" << endl;
             } else {
                 cout << utilName << " is owned by the other player. Rental cost is " << baseRent << endl;
-                bank.pay(baseRent);
+                bank.pay(currentplayer, baseRent);
             }
         }
         switchPlayer();
@@ -631,10 +661,12 @@ class utility : public lands {
         int tax = 200;
     
         cout << "You're currently on " << propertyName << endl;
-        cout << "Pay Tax: $" << tax;
+        cout << "Pay Tax: $" << tax << endl;
     
         status = tax;
-        bank.pay(tax);
+        bank.pay(currentplayer,tax);
+
+        cout << "Remember to always pay your taxes! :)" << endl;
         
         switchPlayer();
     }
@@ -645,6 +677,7 @@ class utility : public lands {
             cout << currentplayer << " just visiting jail." << endl;
         } else if (cause == "goToJail") {
             cout << currentplayer << " is currently jailed." << endl;
+            pressEnterToContinue();
         }
         switchPlayer();
     }
@@ -677,9 +710,8 @@ class cards : public lands{
                        "Life insurance matures: collect $100"};
 
     int randomize(){
-        int random;
         srand(time(0));
-        return random = rand() % 2 + 1;
+        return rand() % 3;
     }
 
     public:
@@ -691,15 +723,17 @@ class cards : public lands{
 
         if (index == 0) {
             amount = 15;
-            bank.pay(amount);
+            bank.pay(currentplayer, amount);
         } else if (index == 1) {
             amount = 50;
             bank.receiveMoney(amount);
+            breakline();
         } else if (index == 2) {
             amount = 40;
-            bank.pay(amount);
+            bank.pay(currentplayer, amount);
         }
         
+        cout << "There is more chances waiting for you..." << endl;
         switchPlayer();
     }
 
@@ -708,6 +742,7 @@ class cards : public lands{
         int index = randomize();
         amount = 100;
         cout << chest[index] << endl;
+        cout << "Enjoy our gift :)" << endl;
         bank.receiveMoney(amount);
         switchPlayer();
     }
