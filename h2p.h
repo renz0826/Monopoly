@@ -179,14 +179,13 @@ class HOW{
         
             pages.push_back(page6);
         
-            clearScreen();
-            cout << "+-----------------------------------------------------------+\n";
-            cout << "|                   GAME INSTRUCTIONS                       |\n";
-            cout << "+-----------------------------------------------------------+\n";
-            cout << "| Please enter the number of the section you want to read.  |\n";
-            cout << "+-----------------------------------------------------------+\n";
+            cout << "+---------------------------------------------------------------+\n";
+            cout << "|                     GAME INSTRUCTIONS                         |\n";
+            cout << "+---------------------------------------------------------------+\n";
+            cout << "|    Please enter the number of the section you want to read.   |\n";
+            cout << "+---------------------------------------------------------------+\n";
         
-            const int totalWidth = 61;           // Total width including borders
+            const int totalWidth = 65;           // Total width including borders
             const int innerWidth = totalWidth - 2; // Inner width (excluding the border characters)
             const int leftMargin = 8;
         

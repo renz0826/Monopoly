@@ -1,7 +1,7 @@
 #include <iostream>
 #include "operations.h"
 #include "board.h"
-//#include "h2p.h"
+#include "h2p.h"
 #include "help.h"
 #include "move.h"
 
@@ -14,34 +14,39 @@ const vector<string> boardTiles = {
     "Chance", "Sunset Strip", "Internet Provider", "Community Chest", "Railroad Station"
 };
 
-int main() {
-    const string RESET = "\x1b[0m";
-    const string BG_BLACK = "\x1b[40m";
-    const string BG_WHITE = "\x1b[107m";
-    const string BG_RED = "\x1b[41m";
-    
-    vector<string> pixelArt = {
-        "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-		"RRRWRRRWRWWWRWRRWRWWWRRRRWRRRWRRWWRRWRRWRRWWRRWWRRRWWRRWRRRWRWRRR",
-		"RRRWWRWWRRWRRWWRWRRWRRRRRWWRWWRWRRWRWWRWRWRRWRWRWRWRRWRWRRRWRWRRR",
-		"RRRWRWRWRRWRRWRWWRRWRRWWRWRWRWRWRRWRWRWWRWRRWRWWRRWRRWRWRRRRWRRRR",
-		"RRRWRRRWRWWWRWRRWRWWWRRRRWRRRWRRWWRRWRRWRRWWRRWRRRRWWRRWWWRRWRRRR",
-		"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-    };
+void pxlArt(){
+        const string RESET = "\x1b[0m";
+        const string BG_BLACK = "\x1b[40m";
+        const string BG_WHITE = "\x1b[107m";
+        const string BG_RED = "\x1b[41m";
+        
+        vector<string> pixelArt = {
+            "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+            "RRRWRRRWRWWWRWRRWRWWWRRRRWRRRWRRWWRRWRRWRRWWRRWWRRRWWRRWRRRWRWRRR",
+            "RRRWWRWWRRWRRWWRWRRWRRRRRWWRWWRWRRWRWWRWRWRRWRWRWRWRRWRWRRRWRWRRR",
+            "RRRWRWRWRRWRRWRWWRRWRRWWRWRWRWRWRRWRWRWWRWRRWRWWRRWRRWRWRRRRWRRRR",
+            "RRRWRRRWRWWWRWRRWRWWWRRRRWRRRWRRWWRRWRRWRRWWRRWRRRRWWRRWWWRRWRRRR",
+            "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+        };
 
-    for (const string& row : pixelArt) {
-        for (char c : row) {
-            if (c == 'W') cout << BG_WHITE << " " << RESET;
-            else if (c == 'B') cout << BG_BLACK << " " << RESET;
-            else if (c == 'R') cout << BG_RED << " " << RESET;
-            else cout << " ";
+        for (const string& row : pixelArt) {
+            for (char c : row) {
+                if (c == 'W') cout << BG_WHITE << " " << RESET;
+                else if (c == 'B') cout << BG_BLACK << " " << RESET;
+                else if (c == 'R') cout << BG_RED << " " << RESET;
+                else cout << " ";
+            }
+            cout << '\n';
         }
-        cout << '\n';
-    }
-    
+}
+
+
+int main() {
     int choice;
     
     while (true) {
+        pxlArt();
+    
         cout << "+---------------------------------------------------------------+" << endl;
         cout << "|  Please enter the number of the action you want to perform.   |" << endl;
         cout << "+---------------------------------------------------------------+" << endl;
@@ -63,6 +68,9 @@ int main() {
         
     
         if (choice == 1) {
+            HOW ins;
+            ins.clearScreen();
+
             initializePropertiesCSV();
             int P1Pos = 0, P2Pos = 0, P1CurrentPos = 0, P2CurrentPos = 0;
             Banker bank;
@@ -72,8 +80,11 @@ int main() {
             cards card;
             currentplayer = p1;
 
+<<<<<<< Updated upstream
             //dri ko nag gamit pointers
             //printing of the board
+=======
+>>>>>>> Stashed changes
             const int initialBills[6] = {2, 2, 6, 5, 5, 5}; 
             bank.giveMoney(&p1, initialBills);
             bank.giveMoney(&p2, initialBills);
@@ -173,8 +184,12 @@ int main() {
                 board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
             }
         } else if (choice == 2){
-          // HOW ins;
-          // ins.showInstructions();
+            HOW ins;
+            ins.clearScreen();
+
+            pxlArt();
+            ins.showInstructions();
+
         } else if (choice == 3){
             system("cls");
             cout << "Exiting the game...";
