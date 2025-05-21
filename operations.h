@@ -15,7 +15,7 @@ using namespace std;
 string p1 = "P1", p2 = "P2";
 string currentProperty, currentplayer = p1, status;
 string moneyFile = "FILES/" + currentplayer + "Money.csv", propertyFile = "FILES/" + currentplayer + "PropertyFile.csv";
-string propertiesDetailFile = "FILES/Properties.csv", tempfile = "TEMPORARY.csv";
+string propertiesDetailFile = "FILES/Properties.csv", tempfile = "FILES/TEMPORARY.csv";
 string propertyName, numOfHouses, numOfHotels, owner;
 fstream money,money2, property, file, tempo;
 int housePrice, hotelPrice;
