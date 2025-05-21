@@ -47,6 +47,9 @@ int main() {
     
     // Main game loop
     while (true) {
+        HOW ins;
+        ins.clearScreen();
+        
         pxlArt();
     
         cout << "+---------------------------------------------------------------+" << endl;
@@ -116,7 +119,7 @@ int main() {
 
                 int currentPlayerPos = (currentplayer == "P1") ? P1CurrentPos : P2CurrentPos;
                 
-                // Actual game set-up
+                // ctual game set-up
                 string tile = boardTiles[currentPlayerPos];
                 if (tile == "GO!") {
                     go(currentplayer, true);
@@ -184,7 +187,6 @@ int main() {
             HOW ins;
             ins.clearScreen();
 
-            pxlArt();
             ins.showInstructions();
 
         } else if (choice == 3){

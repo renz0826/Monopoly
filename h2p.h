@@ -9,10 +9,11 @@
 #include <vector>
 #include <cctype> //for toupper
 #include "colors.h"
+#include "pixel.h"
 
 using namespace std;
 
-class HOW{
+class HOW : public PIXEL{
     public: 
         //function to clear the console screen
         void clearScreen() {
@@ -46,6 +47,7 @@ class HOW{
             sections.push_back("Return to Main Menu");
             
             Colors c;
+            PIXEL p;
 
             vector<string> pages;
         
@@ -178,7 +180,10 @@ class HOW{
                 + "+----------------------------------------------------+\n";
         
             pages.push_back(page6);
-        
+            
+            clearScreen();
+
+            p.pxlArt();
             cout << "+---------------------------------------------------------------+\n";
             cout << "|                     GAME INSTRUCTIONS                         |\n";
             cout << "+---------------------------------------------------------------+\n";
