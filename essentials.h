@@ -3,6 +3,9 @@
 #define ESSENTIALS_H
 
 #include <iostream>
+#include <vector>
+#include <string>
+#include "operations.h"
 using namespace std;
 
 void inputFailure(){
@@ -17,5 +20,15 @@ void inputFailure(){
 void fileNotFound(){
     cerr << "File cannot be found." << endl;
 }
+
+void start(){
+    //printboard();
+
+    Banker bank;
+    
+    bank.giveMoney();
+
+}
+
 #endif
 
