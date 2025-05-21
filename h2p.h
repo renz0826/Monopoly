@@ -12,42 +12,7 @@
 
 using namespace std;
 
-
 class HOW{
-<<<<<<< Updated upstream
-    public:
-
-        //function to clear the console screen
-        void clearScreen() {
-            system("cls");
-        }
-
-        //function to pause and wait for user input
-        void pauseScreen() {
-            cout << "Continue [>]"; //enter lang ni
-            cin.ignore();
-            cin.get();
-        }
-
-        //function to display a specific instruction page
-        void displayInstructionPage(const string& pageContent) {
-            clearScreen();
-            cout << pageContent << endl;
-            pauseScreen();
-        }
-
-
-        // Function to display the instructions menu and handle user choice
-        void showInstructions() {
-            vector<string> sections;
-            sections.push_back("Setup");
-            sections.push_back("Taking Turns");
-            sections.push_back("Resolving Your Landing");
-            sections.push_back("Building Upgrades");
-            sections.push_back("Jail Rules");
-            sections.push_back("Bankruptcy & Winning");
-            sections.push_back("Return to Main Menu");
-=======
     public: 
     //function to clear the console screen
     void clearScreen() {
@@ -56,7 +21,7 @@ class HOW{
     
     //function to pause and wait for user input
     void pauseScreen() {
-        cout << "Continue [>]"; //enter lang ni
+        cout << "Press enter to go back [>]"; //enter lang ni
         cin.ignore();
         cin.get();
     }
@@ -92,11 +57,12 @@ class HOW{
             + "| " + "    and it is automatically placed on [GO!].   |\n"
             + "|                                                |\n"
             + "| " + c.dollar + " Starting cash: $500                          |\n"
-            + "| " + "  |__ 4 x $100                                 |\n"
-            + "| " + "  |____ 1 x $50                                |\n"
-            + "| " + "  |______ 1 x $20                              |\n"
-            + "| " + "  |________ 2 x $10                            |\n"
-            + "| " + "  |__________ 5 x $1                           |\n"
+            + "| " + "  |__ 2 x $100                                 |\n"
+            + "| " + "  |____ 2 x $50                                |\n"
+            + "| " + "  |______ 6 x $20                              |\n"
+            + "| " + "  |________ 5 x $10                            |\n"
+            + "| " + "  |__________ 5 x $5                           |\n"
+            + "| " + "  |____________ 5 x $1                         |\n"
             + "|                                                |\n"
             + "| " + c.c_cc + " Chance & Community Chest Cards           |\n"
             + "| " + "      |____ [Shuffled and Ready]               |\n"
@@ -112,7 +78,7 @@ class HOW{
             + "+--------------------------------------------------+\n"
             + "| " + c.turn + " On your turn, roll a die and move your token   |\n"
             + "|   forward that many spaces, wrapping around      |\n"
-            + "|   past space 17 and returning to [GO!].          |\n"
+            + "|   past space 19 and returning to [GO!].          |\n"
             + "|                                                  |\n"
             + "| " + c.turn + " If you pass or land on [GO!], collect $200     |\n"
             + "|   immediately.                                   |\n"
@@ -142,8 +108,7 @@ class HOW{
             + "|            effect, then place it on the bottom.     |\n"
             + "|                                                     |\n"
             + "| " + c.jail + " Go to Jail:                                   |\n"
-            + "|       |____Move directly to the Jail space; your    |\n"
-            + "|            turn ends without collecting [GO].       |\n"
+            + "|       |____Move directly to the Jail space.         |\n"
             + "|                                                     |\n"
             + "| " + c.free + " Jail (Just Visiting) / Free Parking:              |\n"
             + "|   |____No action required.                          |\n"
@@ -188,13 +153,10 @@ class HOW{
             + c.w + "|                       JAIL RULES                       |" + c.re + "\n"
             + "----------------------------------------------------------\n"
             + "+--------------------------------------------------------+\n"
-            + "| " + c.jail + " If you land on 'Go to Jail', you remain there    |\n"
-            + "|       until you either:                                |\n"
-            + "|       |____Pay $50 at the start of your next turn,     |\n"
-            + "|             or use a 'Get Out of Jail Free' card.      |\n"
+            + "| " + c.jail + " If you land on 'Go to Jail', you remain there.   |\n"
             + "|                                                        |\n"
             + "| " + c.go + " After leaving jail, roll the dice to move as      |\n"
-            + "|      usual (or pay first, then roll).                  |\n"
+            + "|      usual.                                            |\n"
             + "|                                                        |\n"
             + "+--------------------------------------------------------+\n";
     
@@ -232,7 +194,6 @@ class HOW{
             ostringstream oss;
             oss << "[" << (i + 1) << "] " << sections[i];
             string content = oss.str();
->>>>>>> Stashed changes
             
             // Ensure the content fits in the available space after the left margin
             if (content.length() > (innerWidth - leftMargin)) {

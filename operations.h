@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <ctime>
 #include "help.h"
 #include "board.h"
 #include "move.h"
