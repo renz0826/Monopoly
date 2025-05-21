@@ -14,6 +14,7 @@ const vector<string> boardTiles = {
     "Chance", "Sunset Strip", "Internet Provider", "Community Chest", "Railroad Station"
 };
 
+// Pixel art function
 void pxlArt(){
         const string RESET = "\x1b[0m";
         const string BG_BLACK = "\x1b[40m";
@@ -44,6 +45,7 @@ void pxlArt(){
 int main() {
     int choice;
     
+    // Main game loop
     while (true) {
         pxlArt();
     
@@ -80,11 +82,6 @@ int main() {
             cards card;
             currentplayer = p1;
 
-<<<<<<< Updated upstream
-            //dri ko nag gamit pointers
-            //printing of the board
-=======
->>>>>>> Stashed changes
             const int initialBills[6] = {2, 2, 6, 5, 5, 5}; 
             bank.giveMoney(&p1, initialBills);
             bank.giveMoney(&p2, initialBills);
@@ -119,7 +116,7 @@ int main() {
 
                 int currentPlayerPos = (currentplayer == "P1") ? P1CurrentPos : P2CurrentPos;
                 
-                //actual game set-up
+                // Actual game set-up
                 string tile = boardTiles[currentPlayerPos];
                 if (tile == "GO!") {
                     go(currentplayer, true);
