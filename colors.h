@@ -1,5 +1,5 @@
-#ifndef BOARD_H
-#define BOARD_H
+#ifndef COLORS_H
+#define COLORS_H
 
 #include <iostream>
 #include <string>
@@ -67,4 +67,4 @@ class Colors{
     
 };
 
-#endif // BOARD_H
+#endif // COLORS_H
