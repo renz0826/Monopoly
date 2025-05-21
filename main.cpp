@@ -73,14 +73,16 @@ int main() {
             currentplayer = p1;
 
             //dri ko nag gamit pointers
+            //printing of the board
             const int initialBills[6] = {2, 2, 6, 5, 5, 5}; 
             bank.giveMoney(&p1, initialBills);
             bank.giveMoney(&p2, initialBills);
             string p1BalanceStr = "$" + to_string(getPlayerTotal("P1"));
             string p2BalanceStr = "$" + to_string(getPlayerTotal("P2"));
             board.drawBoard(p1BalanceStr, p2BalanceStr, currentplayer);
-
+            
             while (true) {
+                //check if player passed go
                 if (currentplayer == "P1") {
                     P1Pos = rollDice();
                     int oldPos = P1CurrentPos;
@@ -106,6 +108,7 @@ int main() {
 
                 int currentPlayerPos = (currentplayer == "P1") ? P1CurrentPos : P2CurrentPos;
                 
+                //actual game set-up
                 string tile = boardTiles[currentPlayerPos];
                 if (tile == "GO!") {
                     go(currentplayer, true);

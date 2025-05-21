@@ -24,6 +24,7 @@ int rolledNum;
 string line;
 int changeHundred = 0, changeFifty = 0, changeTwenty = 0, changeTen = 0, changeFive = 0, changeOne = 0;
 
+//player switching for player's turn.
 void switchPlayer() {
     if (currentplayer == p1) {
         currentplayer = p2;
@@ -32,6 +33,7 @@ void switchPlayer() {
     }
 }
 
+//check wether a certain property or utility is already owned
 bool isOwned(const string &propName) {      
    property.open(propertyFile, ios::in);
    if(property.is_open()){
@@ -52,10 +54,12 @@ bool isOwned(const string &propName) {
    }
 }
 
+//helper function to get the total
 int total (int hundred, int fifty, int twenty, int ten, int five, int one){
     return (hundred * 100) + (fifty * 50) + (twenty * 20) + (ten * 10) + (five * 5) + (one * 1);
 }
 
+//helper function for printing money
 void printPlayerBalance(int hundred, int fifty, int twenty, int ten, int five, int one) {
     cout << "$100: " << hundred << " | "
          << "$50: " << fifty << " | "
@@ -66,6 +70,7 @@ void printPlayerBalance(int hundred, int fifty, int twenty, int ten, int five, i
          << "Total: " << total(hundred, fifty, twenty, ten, five, one) << " | " <<  endl;
 }
 
+//main banker
 class Banker{
     private:
     int num100, num50, num20, num10, num1;
@@ -73,6 +78,7 @@ class Banker{
     int pHundred, pFifty, pTwenty, pTen, pFive, pOne;
 
     public: 
+    //for giving player their change
     void bankerGive(int surplus) {
         changeHundred = changeFifty = changeTwenty = changeTen = changeFive = changeOne = 0;
         while (surplus >= 100) {surplus -= 100; changeHundred +=1;}
@@ -83,6 +89,7 @@ class Banker{
         while (surplus >= 1) {surplus -= 1; changeOne +=1;}   
     }
 
+    //when banker act as a bridge between player to player
     void creditToPlayer(const string& player, int amount) {
         money.open(setMoneyFileName(currentplayer));
         if (money.is_open()){
@@ -104,6 +111,7 @@ class Banker{
         }
     }
 
+    //when player needs change
     void change(int surplus) {
         bankerGive(surplus);
         breakline();
@@ -117,6 +125,7 @@ class Banker{
         cout << "  $1: " << changeOne << endl; 
     }
 
+    //value returning function to check if the player have lost. Check for bankrupcy.
     bool isPlayerLost(string currentPlayer, int due){
         money.open(setMoneyFileName(currentPlayer), ios::in);
         if (money.is_open()) {
@@ -132,6 +141,7 @@ class Banker{
         }
     }
 
+    //check the balances of the player
     void checkBalance(string &currentplayer){
         money.open(setMoneyFileName(currentplayer), ios::in);
         if (money.is_open()) {
@@ -147,6 +157,7 @@ class Banker{
         }
     }
 
+    //helper function when players are paying
     void enterAmount(){
         do {
             cout << "$100: ";
@@ -215,6 +226,7 @@ class Banker{
         } while (pOne < one);
     }
     
+    //the most important function of the program (the soul). allows for paying functionality to work. most used
     void pay(string &currentplayer, int &price) {
         
         if (isPlayerLost(currentplayer, price)) {
@@ -323,6 +335,7 @@ class Banker{
         }
     }
 
+    //for players to receive money from the bank
     void receiveMoney(int amount) {
         money.open(setMoneyFileName(currentplayer), ios::in);
         if (money.is_open()) {
@@ -351,6 +364,7 @@ class Banker{
         }
     }
 
+    //when bank bridges p-2-p transactions
     void giveMoney(const string* player, const int* bills) {
         if (!player || !bills) return;
         string fileName = *player + "Money.csv";
@@ -365,6 +379,7 @@ class Banker{
         }
     }
 
+    //handles buying of assets within lands
     void buyAsset(const string &name, int &housePrice, int &hotelPrice) {
         char yn;
         cout << "Would you like to purchase some assets to increase the value of your land? [y/n]: ";
@@ -438,7 +453,7 @@ class Banker{
     }
 };
 
-
+//helper function to calculate rent cost.
 int rentalCost(const string name, int baseRent, int houseIncrease, int HotelIncrease) {
     property.open(propertyFile, ios::in) ;
     if (property.is_open()) {
@@ -457,6 +472,7 @@ int rentalCost(const string name, int baseRent, int houseIncrease, int HotelIncr
     return 0;
 }
 
+//dice rolling function. radomizer
 int rollDice() {
     char roll;
     do {
@@ -484,40 +500,58 @@ int rollDice() {
     return 0;
 }
 
+//go function for giving 200 dollors to player.
 void go(string &currentplayer, bool isLanding = false){
     Banker bank;
     propertyName = "go";
     
     if (isLanding) {
         cout << currentplayer << " landed on GO! Collect $200." << endl;
+        money.open(setMoneyFileName(currentplayer), ios::in);
+        if (money.is_open()) {
+            getline(money, line);
+            Money bills = billToInt(line);
+            money.close();
+            bills.hundred += 2;
+            money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
+            money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
+            money.close();
+            cout << "Your Current ";
+            bank.checkBalance(currentplayer);
+            pressEnterToContinue();
+        } else {
+            fileNotFound();
+        }
     } else {
         cout << currentplayer << " passed GO! Collect $200." << endl;
-    }
-    money.open(setMoneyFileName(currentplayer), ios::in);
-    if (money.is_open()) {
-        getline(money, line);
-        Money bills = billToInt(line);
-        money.close();
-        bills.hundred += 2;
-        money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
-        money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
-        money.close();
-        cout << "Your Current ";
-        bank.checkBalance(currentplayer);
-        pressEnterToContinue();
-    } else {
-        fileNotFound();
+        money.open(setMoneyFileName(currentplayer), ios::in);
+        if (money.is_open()) {
+            getline(money, line);
+            Money bills = billToInt(line);
+            money.close();
+            bills.hundred += 2;
+            money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
+            money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
+            money.close();
+            cout << "Your Current ";
+            bank.checkBalance(currentplayer);
+            pressEnterToContinue();
+        } else {
+            fileNotFound();
+        }
     }
 }
 
 class lands{
     private:
 
+    //handles all the function related to the property
     void handleProperty(const string& propName, int propPrice, int housePrice, int hotelPrice, int baseRent, int houseIncrease, int hotelIncrease) {
         cout << "You're currently on " << propName << endl;
                 
         if (!isOwned(propName)) {
             char choice;
+            //selling of property if not owned
             cout << "This property is for sale for $" << propPrice << endl;
             cout << "Would you like to purchase it? [y/n]: ";
             cin >> choice;
@@ -548,9 +582,11 @@ class lands{
             }
          } else {
             if (owner == currentplayer) {
+                //buying of assets if owner lands.
                 bank.buyAsset(propName, housePrice, hotelPrice);
                 cout << "Congrats on your purchase!." << endl;
              } else {
+                //paying of rent if opponent lands.
                 int rent = rentalCost(propName, baseRent, houseIncrease, hotelIncrease);
                 status = "Rent";
                 cout << propName << " is owned by the other player. Rental cost is $" << rent << endl;
@@ -564,6 +600,7 @@ class lands{
     public:
     Banker bank;
     
+    //all the properties.
     void redFordAvenue() {
         handleProperty("Redford Avenue", 120, 50, 150, 12, 50, 300);
     }
@@ -596,10 +633,12 @@ class lands{
 
 class utility : public lands {
     private:
+        //handles all utility
         void handleUtility(const string& utilName, int utilPrice, int baseRent) {
         cout << "You're currently on " << utilName << endl;
     
         if (!isOwned(utilName)) {
+            //selling of utility if not owned.
             char choice;
             cout << "This property is for sale for $" << utilPrice << endl;
             cout << "Would you like to purchase it? [y/n]: ";
@@ -633,6 +672,7 @@ class utility : public lands {
             if (owner == currentplayer) {
                 cout << "Welcome to your property!" << endl;
             } else {
+                //rental for non-owners;
                 cout << utilName << " is owned by the other player. Rental cost is " << baseRent << endl;
                 bank.pay(currentplayer, baseRent);
             }
@@ -641,6 +681,7 @@ class utility : public lands {
     }
 
     public:
+    //all utility:
     void railRoadStation() {
         handleUtility("Railroad Station", 200, 25);
     }
@@ -657,6 +698,7 @@ class utility : public lands {
         handleUtility("Internet Provider", 150, rolledNum * 4);
     }
 
+    //special utilities:
     void incomeTax() {
         propertyName = "Income Tax";
         int tax = 200;
@@ -702,6 +744,7 @@ class utility : public lands {
 class cards : public lands{
     private:
     int amount;
+    //stored card values
     string chance[3] = {"Speeding fine: pay $15", 
                         "Bank pays you a dividend of $50", 
                         "Pay poor tax of $40"};
@@ -710,6 +753,7 @@ class cards : public lands{
                        "Holiday fund matures: receive $100", 
                        "Life insurance matures: collect $100"};
 
+    //randomizes the card to be given
     int randomize(){
         srand(time(0));
         return rand() % 3;
@@ -717,6 +761,7 @@ class cards : public lands{
 
     public:
     
+    //chanceCard
     void chanceCard(){
         propertyName = "Chance";
         int index = randomize();
@@ -738,6 +783,7 @@ class cards : public lands{
         switchPlayer();
     }
 
+    //chestCard
     void chestCard(){
         propertyName = "Chest";
         int index = randomize();
