@@ -15,10 +15,6 @@ using namespace std;
 
 class HOW{
     public:
-        //functions
-        void showInstructions();
-        void clearScreen(); 
-        void pauseScreen();   
 
         //function to clear the console screen
         void clearScreen() {
