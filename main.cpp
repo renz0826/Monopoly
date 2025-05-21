@@ -85,15 +85,15 @@ int main() {
                     P1Pos = rollDice();
                     int oldPos = P1CurrentPos;
                     P1CurrentPos = (P1CurrentPos + P1Pos) % boardTiles.size();
-                    if (P1CurrentPos <= oldPos) {
-                        go(currentplayer);
+                    if (P1CurrentPos < oldPos) {
+                        go(currentplayer, false);
                     }
                 } else {
                     P2Pos = rollDice();
                     int oldPos = P2CurrentPos;
                     P2CurrentPos = (P2CurrentPos + P2Pos) % 20;
                     if (P2CurrentPos < oldPos) {
-                        go(currentplayer);
+                        go(currentplayer, false);
                     }
                 }
                 
@@ -108,7 +108,7 @@ int main() {
                 
                 string tile = boardTiles[currentPlayerPos];
                 if (tile == "GO!") {
-                    go(currentplayer);
+                    go(currentplayer, true);
                 } else if (tile == "Redford Avenue") {
                     land.redFordAvenue();
                 } else if (tile == "Community Chest") {

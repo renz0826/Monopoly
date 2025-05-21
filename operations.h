@@ -405,23 +405,24 @@ class Banker{
                         } else {
                             int housesToPurchase;
                             do {
-                                cout << "How many houses would you want to purchase: ";
+                                cout << "How many houses would you want to purchase (1-4, max 4 per property): ";
                                 cin >> housesToPurchase;
                                 inputFailure();
-                                
-                                if (housesToPurchase > 4 && housesToPurchase <= 0 && ( housesToPurchase + property.iHouse < 4)) {
-                                    cerr << "Invalid Input. Note that you're limited to have 4 houses for this property." << endl;
+
+                                if (housesToPurchase < 1 || housesToPurchase > 4 || (housesToPurchase + property.iHouse > 4)) {
+                                    cerr << "Invalid Input. You can only have up to 4 houses for this property." << endl;
                                 }
-                                
-                            } while (housesToPurchase > 4 && housesToPurchase <= 0 &&( housesToPurchase + property.iHouse < 4) );
-                            
+                            } while (housesToPurchase < 1 || housesToPurchase > 4 || (housesToPurchase + property.iHouse > 4));
+
                             int totalDue = housePrice * housesToPurchase;
-                            cout << "For  " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue << endl;
+                            cout << "For " << housesToPurchase << " house/s. Your total amount due is: $" << totalDue << endl;
                             pay(currentplayer, totalDue); 
-                            property.house += housesToPurchase;
+
+                            property.iHouse += housesToPurchase;
+                            property.house = to_string(property.iHouse);
                         }
                     }
-                    tempo << property.name << ',' << property.house << ',' << property.hotel << ',' << property.owner << '\n';
+                    tempo << property.name << ',' << property.iHouse << ',' << property.iHotel << ',' << property.owner << '\n';
                 }
                 file.close();
                 tempo.close();
@@ -483,28 +484,27 @@ int rollDice() {
     return 0;
 }
 
-void go(string &currentplayer){
+void go(string &currentplayer, bool isLanding = false){
     Banker bank;
     propertyName = "go";
-
-    cout << currentplayer << " landed on or passed GO! Collect $200." << endl;
+    
+    if (isLanding) {
+        cout << currentplayer << " landed on GO! Collect $200." << endl;
+    } else {
+        cout << currentplayer << " passed GO! Collect $200." << endl;
+    }
     money.open(setMoneyFileName(currentplayer), ios::in);
     if (money.is_open()) {
         getline(money, line);
         Money bills = billToInt(line);
         money.close();
-
         bills.hundred += 2;
-
         money.open(setMoneyFileName(currentplayer), ios::out | ios::trunc);
         money << bills.hundred << ',' << bills.fifty << ',' << bills.twenty << ',' << bills.ten << ',' << bills.five << ',' << bills.one << '\n';
         money.close();
-
         cout << "Your Current ";
         bank.checkBalance(currentplayer);
-
         pressEnterToContinue();
-
     } else {
         fileNotFound();
     }
@@ -748,6 +748,5 @@ class cards : public lands{
         switchPlayer();
     }
 };
-
 
 #endif

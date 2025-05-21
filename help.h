@@ -137,7 +137,7 @@ void initializePropertiesCSV() {
     }
 
     for (const auto& name : propertyNames) {
-        file << name << ",,," << endl;
+        file << name << ",0,0," << endl;
     }
     file.close();
 }
