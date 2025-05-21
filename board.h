@@ -17,33 +17,6 @@ class Board {
             vector<int> occupants;
         };
 
-        // Centers text without ANSI codes for centering prompts
-        static string centerTexts(const string &text, int width) {
-            int padLeft = (width - static_cast<int>(text.size())) / 2;
-            int padRight = width - static_cast<int>(text.size()) - padLeft;
-            return string(padLeft, ' ') + text + string(padRight, ' ');
-        }
-
-        // Draws an input box, centers the prompt, and reads user input
-        static string getInputInBoxCenteredPrompt(const string &prompt, int boxWidth) {
-            // Draw the box
-            cout << "+" << string(boxWidth, '-') << "+\n";
-            cout << "|" << string(boxWidth, ' ') << "|\n";
-            cout << "+" << string(boxWidth, '-') << "+\n";
-            
-            // Move cursor up to input row
-            cout << "\033[2A";
-            int promptPos = (boxWidth - prompt.size()) / 2 + 1;
-            cout << "\033[" << promptPos << "G";
-            cout.flush();
-
-            // Print prompt and read
-            cout << prompt << " ";
-            string userInput;
-            getline(cin, userInput);
-            return prompt + " " + userInput;
-        }
-
         // Centers ANSI-styled text
         static string centerText(const string &text, int width) {
             size_t visibleLength = 0;

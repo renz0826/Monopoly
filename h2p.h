@@ -105,8 +105,7 @@ class HOW{
                 + "|    |____Pay $200 to the bank.                       |\n"
                 + "|                                                     |\n"
                 + "| " + c.c_cc + " Chance / Community Chest:                     |\n"
-                + "|       |____Draw the top card, read it, apply its    |\n"
-                + "|            effect, then place it on the bottom.     |\n"
+                + "|       |____Read it and apply its effect.            |\n"
                 + "|                                                     |\n"
                 + "| " + c.jail + " Go to Jail:                                   |\n"
                 + "|       |____Move directly to the Jail space.         |\n"
@@ -154,7 +153,8 @@ class HOW{
                 + c.w + "|                       JAIL RULES                       |" + c.re + "\n"
                 + "----------------------------------------------------------\n"
                 + "+--------------------------------------------------------+\n"
-                + "| " + c.jail + " If you land on 'Go to Jail', you remain there.   |\n"
+                + "| " + c.jail + " If you land on 'Go to Jail', you will            |\n"
+                + "|       return to the Jail space.                        |\n"
                 + "|                                                        |\n"
                 + "| " + c.go + " After leaving jail, roll the dice to move as      |\n"
                 + "|      usual.                                            |\n"
@@ -169,7 +169,7 @@ class HOW{
                 + "------------------------------------------------------\n"
                 + "+----------------------------------------------------+\n"
                 + "| " + c.bankrupt + " If you owe more than you can pay, you are      |\n"
-                + "|     bankrupt and lose.                             |\n"
+                + "|     bankrupt and immediately lose.                 |\n"
                 + "|                                                    |\n"
                 + "| " + c.free + " The game does not have a mortgage system.        |\n"
                 + "|                                                    |\n"
@@ -187,7 +187,7 @@ class HOW{
             cout << "+-----------------------------------------------------------+\n";
         
             const int totalWidth = 61;           // Total width including borders
-            const int innerWidth = totalWidth - 2; // Inner width (excluding the border characters)'
+            const int innerWidth = totalWidth - 2; // Inner width (excluding the border characters)
             const int leftMargin = 8;
         
             // Loop through the sections, applying the custom left margin

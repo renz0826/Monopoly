@@ -34,7 +34,6 @@ class Main : public Board, public Colors {
             const int gap            = 0;
             const int specialGap     = 55;
             const int specialInterior= 4;
-            const int boxWidth       = 83;
 
             // Define your tile rows.
             vector<Board::Tile> tilesStandard = {
