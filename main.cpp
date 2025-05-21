@@ -3,7 +3,7 @@
 #include "essentials.h"
 #include "board.h"
 #include "instructions.h"
-//#include "help.h"
+#include "help.h"
 #include "move.h"
 
 using namespace std;
@@ -86,7 +86,7 @@ int main(){
                     P1Pos = rollDice(currentplayer);
                     int oldPos = P1CurrentPos;
                     P1CurrentPos = (P1CurrentPos + P1Pos) % boardTiles.size();
-                    if (P1CurrentPos <= oldPos) { // <= catches both passing and landing
+                    if (P1CurrentPos <= oldPos) {
                         go();
                     }
                 } else {
@@ -133,8 +133,13 @@ int main(){
                 } else if (tile == "Bayview Boulevard") {
                     land.bayviewBoulevard();
                 } else if (tile == "Go to Jail") {
-                    if (currentplayer == "P1") util.goToJail(P1CurrentPos);
-                    else util.goToJail(P2CurrentPos);
+                    if (currentplayer == "P1") {
+                        P1CurrentPos = 5;
+                        util.goToJail(P1CurrentPos);
+                    } else {
+                        P2CurrentPos = 5;
+                        util.goToJail(P2CurrentPos);
+                    }
 
                     // Update board display
                     board.playerPositions[0] = Board::posSpecifier(P1CurrentPos);
@@ -153,12 +158,10 @@ int main(){
                 } else {
                     cout << "Unknown tile!" << endl;
                 }
-                separation();
                 pressEnterToContinue();
                 system("cls");
                 board.drawBoard();
             }
-
         } else if (choice == 2){
            showInstructions();
         } else if (choice == 3){

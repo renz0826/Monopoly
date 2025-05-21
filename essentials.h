@@ -21,14 +21,5 @@ void fileNotFound(){
     cerr << "File cannot be found." << endl;
 }
 
-void start(){
-    //printboard();
-
-    Banker bank;
-    
-    bank.giveMoney();
-
-}
-
 #endif
 

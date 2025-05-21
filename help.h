@@ -10,6 +10,26 @@
 
 using namespace std;
 
+struct Property {
+    string name, house, hotel, owner;
+};
+
+Property readProperty(string &line){
+    string name, house, hotel, owner;
+    stringstream ss(line);
+    
+    getline(ss, name, ',');
+    getline(ss, house, ',');
+    getline(ss, hotel, ',');
+    getline(ss, owner, ',');
+
+    return {name, house, hotel, owner};
+}
+
+string setMoneyFileName(string& currentplayer){
+    return "FILES/" + currentplayer + "Money.csv";
+}
+
 struct  Money {
     int hundred, fifty, twenty, ten, five, one;
 };
@@ -80,6 +100,5 @@ void initializePropertiesCSV() {
     file.close();
 }
 
-
-#endif // !HELP_H
+#endif // !HELP_
 
